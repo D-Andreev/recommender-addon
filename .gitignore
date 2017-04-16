@@ -257,5 +257,4 @@ paket-files/
 *.vcxproj.user
 Debug/
 demo/node_modules/
-recommender/build/
-recommender/node_modules/
+build/
