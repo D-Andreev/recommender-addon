@@ -3,6 +3,7 @@ node_js:
   - "7"
 
 script:
+	- cd ./recommender && npm install
     - npm install -g node-gyp
-    - cd ./demo && npm install
+    - cd ../demo && npm install
 	- node index.js
