@@ -33,6 +33,7 @@ private:
 	vector<double> setCenterCosine(int index, vector<double>& ratings);
 	void getCosineSimilarities(vector<vector<double>>& ratings, int rowIndex, double targetRowNormalized, map<int, double>& similarities);
 	bool isUsed(vector<int> used, int index) const;
+	bool useStopWords;
 };
 
 #endif

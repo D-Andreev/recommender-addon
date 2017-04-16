@@ -8,7 +8,7 @@
     "license": "MIT",
     "repository": {
       "type": "git",
-      "url": "git+https://github.com/D-Andreev/recommender-addon.git"
+      "url": "https://github.com/D-Andreev/recommender-addon.git"
     },
     "bugs": {
       "url": "https://github.com/D-Andreev/recommender-addon/issues"
@@ -17,6 +17,8 @@
     "keywords": [
       "recommendation",
       "tfidf",
+      "collaborative",
+      "filtering",
       "recommender",
       "addon",
       "node",

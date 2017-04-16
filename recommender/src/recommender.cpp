@@ -19,9 +19,10 @@ public:
 
 	Recommender() {}
 
-	void tfidf(string documentFilePath, string documentsFilePath) {
+	void tfidf(string documentFilePath, string documentsFilePath, bool useStopWords) {
 		map<string, double> result;
 
+		this->useStopWords = useStopWords;
 		this->document = this->readDocument(documentFilePath);
 		this->documents = this->getVocabulary(documentsFilePath);
 
@@ -123,6 +124,8 @@ public:
 		return weightedRatingsSum / sumOfNeighbourSimilarities;
 	}
 private:
+	bool useStopWords = false;
+
 	vector<string> readDocument(string documentFilePath) {
 		vector<string> result;
 
@@ -158,15 +161,17 @@ private:
 		string word;
 		while (s >> word) {
 			transform(word.begin(), word.end(), word.begin(), ::tolower);
-			bool isStopWord = false;
-			for (int i = 0; i < STOP_WORDS.size(); i++) {
-				if (word == STOP_WORDS[i]) {
-					isStopWord = true;
-					break;
+			if (this->useStopWords) {
+				bool isStopWord = false;
+				for (int i = 0; i < STOP_WORDS.size(); i++) {
+					if (word == STOP_WORDS[i]) {
+						isStopWord = true;
+						break;
+					}
 				}
-			}
 
-			//if (isStopWord) continue;
+				if (isStopWord) continue;
+			}
 			document.push_back(word);
 		}
 

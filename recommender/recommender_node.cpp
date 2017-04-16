@@ -20,7 +20,10 @@ NAN_METHOD(TfIdf) {
 	std::string documentFilePath(*documentFilePathValue);
 	std::string documentsFilePath(*documentsFilePathValue);
 
-	r.tfidf(documentFilePath, documentsFilePath);
+	bool useStopWords = false;
+	if (info[2]->IsBoolean() && info[2]->BooleanValue()) useStopWords = info[2]->BooleanValue();
+
+	r.tfidf(documentFilePath, documentsFilePath, useStopWords);
 
 	Local<Object> obj = Nan::New<Object>();
 	for (auto const &ent1 : r.weights) {

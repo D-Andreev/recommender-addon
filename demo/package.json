@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "main": "index.js",
     "author": "Dimitar Andreev <d.andreev90@gmail.com>",
-    "license": "ISC",
+    "license": "MIT",
     "dependencies": {
       "recommender": "file:../recommender",
       "fastbench": "^1.0.1"
