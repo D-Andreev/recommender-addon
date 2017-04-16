@@ -1,0 +1,30 @@
+{
+    "name": "recommender",
+    "version": "1.0.0",
+    "description": "A node native addon with recommentaion utils",
+    "main": "./build/Release/recommender",
+    "gypfile": true,
+    "author": "Dimitar Andreev <d.andreev90@gmail.com>",
+    "license": "MIT",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/D-Andreev/recommender-addon.git"
+    },
+    "bugs": {
+      "url": "https://github.com/D-Andreev/recommender-addon/issues"
+    },
+    "homepage": "https://github.com/D-Andreev/recommender-addon#readme",
+    "keywords": [
+      "recommendation",
+      "tfidf",
+      "collaborative",
+      "filtering",
+      "recommender",
+      "addon",
+      "node",
+      "native"
+    ],
+    "dependencies": {
+        "nan": "^2.3.3"
+    }
+}
