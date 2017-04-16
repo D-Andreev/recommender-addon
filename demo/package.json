@@ -5,7 +5,7 @@
     "author": "Dimitar Andreev <d.andreev90@gmail.com>",
     "license": "MIT",
     "dependencies": {
-      "recommender": "file:../recommender",
+      "recommender": "file:../",
       "fastbench": "^1.0.1"
     }
 }
