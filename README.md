@@ -19,26 +19,17 @@ Recommender is a node addon with implementations of [tf-idf](https://en.wikipedi
 
 ### TF-IDF
 The input of TF-IDF is a search query and a collection of documents. It finds how important a word is to a document in a collection or corpus. Then using cosine similarity we can get the most similar documents to the search query and make recommendations.
-We create two text files with the input. Save this in `search_query.txt`.
-```
-get current date time javascript
-```
-And this into `documents.txt`. Every document is seperated by a new line and every word is separated by space.
-```
-get the current date and time in javascript
-get the current date and time in python
-something very different
-what is the time now
-```
-
 ```js
 var recommender = require('recommender');
 
-var searchQueryPath = "./search_query.txt";
-var documentsPath = "./documents.txt";
-
-bool filterStopWords = false;
-var weights = recommender.tfidf(searchQueryPath, documentsPath, filterStopWords);
+var query = 'get current date time javascript';
+var documents = [
+    'get the current date and time in javascript',
+    'get the current date and time in python',
+    'something very different',
+    'what is the time now'
+];
+var weights = recommender.tfidf(query, documents);
 var recommendations = recommender.recommend();
 var sortedDocs = recommender.getSortedDocs();
 console.log(sortedDocs);
@@ -50,7 +41,41 @@ console.log(sortedDocs);
     something very different
 */
 ```
+The `tfidf` method also accepts paths to the files where our query and documents are. We can create a text file for the query - `search_query.txt` with content:
+```
+get current date time javascript
+```
+And this into `documents.txt`. Every document is seperated by a new line and every word is separated by space.
+```
+get the current date and time in javascript
+get the current date and time in python
+something very different
+what is the time now
+```
+```js
+var recommender = require('recommender');
+
+var queryPath = './search_query.txt';
+var documentsPath = './search_query.txt';
+
+var weights = recommender.tfidf(queryPath, documentsPath);
+var recommendations = recommender.recommend();
+var sortedDocs = recommender.getSortedDocs();
+console.log(sortedDocs);
+// Output:
+/**
+    get the current date and time in javascript
+    get the current date and time in python
+	what is the time now
+    something very different
+*/
+```
+
 We can also pass `filterStopWords` which is optional and `false` by default. If `filterStopWords` is `true` those words will be filtered out and not considered when calculating similarity. Stop-words are those words that appear very commonly across the documents, therefore loosing their representativeness and don't contribute to the meaning of the text. i.e (`a`, `about`, `the`, `if`, `it`, `is`...). The full stop words list can be viewed [here](https://github.com/D-Andreev/recommender-addon/blob/master/include/Constants.h#L8).
+```js
+bool filterStopWords = true;
+var weights = recommender.tfidf(queryPath, documentsPath, filterStopWords);
+```
 
 ### Collaborative filtering
 The input for collaborative filtering is a table with user ratings. Each row is an item and each column is a user. Consider the following table with ratings of movies. `U01,U02,U03...U13` are users and `M01,M02,M03...M6` are movies. A rating of `0` means that the user has not rated the movie. In this example ratings range from `1` to `5`, but they can be in any system (i.e. 1-10).
@@ -82,11 +107,48 @@ console.log(predictedRating);
 // Output: 2.586406866934817
 ```
 ### API
+* **[recommender.tfidf(`query`, `documents`, `useStopWords`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendertfidfsearchqueryfilepath-documentsfilepath-usestopwords)**
 * **[recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendertfidfsearchqueryfilepath-documentsfilepath-usestopwords)**
 * **[recommender.recommend()](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommenderrecommend)**
 * **[recommender.getSortedDocs()](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetsorteddocs)**
 * **[recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetratingpredictionratings-rowindex-colindex)**
 
+##### recommender.tfidf(`query`, `documents`, `useStopWords`)
+###### Arguments
+* `query` - A string with the query. *(Required)*
+* `documents` - An array of strings with the documents. *(Required)*
+* `filterStopWords` - A boolean to filter out the stop words or not. *(Optional)* *(Default: `false`)*
+###### Returns
+An object with each of the terms in the search query as keys and a float number with the weight of the term.
+```js
+{
+    current: 0.3386294361119891,
+    date: 0.3386294361119891,
+    get: 0.3386294361119891,
+    javascript: 0.47725887222397817,
+    time: 0.2575364144903562
+}
+```
+###### Examples
+```js
+var recommender = require('recommender');
+
+var query = "get current date time javascript";
+var documents = [
+    'get the current date and time in javascript',
+    'get the current date and time in python',
+    'something very different',
+    'what is the time now'
+];
+bool filterStopWords = true;
+var weights = recommender.tfidf(searchQueryPath, documentsPath, filterStopWords);
+```
+##### recommender.recommend()
+###### Returns
+An array with float point numbers representing the similarities. Every index corresponds to the index of the document in `documents.txt`.
+```js
+[1, 0.801901630090658, 0, 0.3223967271549685]
+```
 ##### recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`)
 ###### Arguments
 * `searchQueryFilePath` - A string with the file path of the search query text file. *(Required)*
