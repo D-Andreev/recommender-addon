@@ -17,8 +17,8 @@ NAN_METHOD(TfIdf) {
 	v8::String::Utf8Value documentFilePathValue(info[0]->ToString());
 	v8::String::Utf8Value documentsFilePathValue(info[1]->ToString());
 
-	std::string documentFilePath(*documentFilePathValue);
-	std::string documentsFilePath(*documentsFilePathValue);
+	string documentFilePath(*documentFilePathValue);
+	string documentsFilePath(*documentsFilePathValue);
 
 	bool useStopWords = false;
 	if (info[2]->IsBoolean() && info[2]->BooleanValue()) useStopWords = info[2]->BooleanValue();
@@ -61,10 +61,11 @@ NAN_METHOD(GetRatingPrediction) {
 	if (!info[0]->IsArray() || !info[1]->IsInt32() || !info[2]->IsInt32()) {
 		Nan::ThrowError("Invalid params");
 	}
+
+	vector<vector<double>> ratings;
 	int rowIndex = info[1]->IntegerValue();
 	int colIndex = info[2]->IntegerValue();
 	Local<Array> array = Local<Array>::Cast(info[0]);
-	vector<vector<double>> ratings;
 
 	for (unsigned i = 0; i < array->Length(); i++) {
 		if (Nan::Has(array, i).FromJust()) {
@@ -82,6 +83,7 @@ NAN_METHOD(GetRatingPrediction) {
 
 	double predictedRating = r.getRatingPrediction(ratings, rowIndex, colIndex);
 	Local<Number> result = Nan::New(predictedRating);
+
 	info.GetReturnValue().Set(result);
 }
 
