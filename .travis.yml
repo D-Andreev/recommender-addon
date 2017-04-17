@@ -17,5 +17,6 @@ before_install:
 script:
 - cd ./demo
 - npm i
+- npm test
 - node index.js
 - node benchmarks.js
