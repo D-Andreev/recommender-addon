@@ -141,7 +141,32 @@ var documents = [
     'what is the time now'
 ];
 bool filterStopWords = true;
-var weights = recommender.tfidf(searchQueryPath, documentsPath, filterStopWords);
+var weights = recommender.tfidf(query, documents, filterStopWords);
+```
+##### recommender.tfidf(`queryFilePath`, `documentsFilePath`, `useStopWords`)
+###### Arguments
+* `queryFilePath` - A string with the file path to the search query text file. *(Required)*
+* `documentsFilePath` - A string with the file path to the documents text file. *(Required)*
+* `filterStopWords` - A boolean to filter out the stop words or not. *(Optional)* *(Default: `false`)*
+###### Returns
+An object with each of the terms in the search query as keys and a float number with the weight of the term.
+```js
+{
+    current: 0.3386294361119891,
+    date: 0.3386294361119891,
+    get: 0.3386294361119891,
+    javascript: 0.47725887222397817,
+    time: 0.2575364144903562
+}
+```
+###### Examples
+```js
+var recommender = require('recommender');
+
+var queryFilePath = './search_query.txt';
+var documentsFilePath = './documents.txt';
+bool filterStopWords = true;
+var weights = recommender.tfidf(queryFilePath, documentsFilePath, filterStopWords);
 ```
 ##### recommender.recommend()
 ###### Returns
