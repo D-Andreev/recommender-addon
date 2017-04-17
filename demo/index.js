@@ -6,7 +6,45 @@ var recommender = require('recommender');
 var documentPath = "./resources/document.txt";
 var documentsPath = "./resources/documents.txt";
 
-// TF-IDF
+// TF-IDF with string and array params
+console.log('TF-IDF with string and array params');
+var query = 'get current date time javascript';
+var documents = [
+    'get the current date and time in javascript',
+    'get the current date and time in python',
+    'something very different',
+    'what is the time now'
+];
+
+var weights = recommender.tfidf(query, documents);
+console.log(weights);
+var recommendations = recommender.recommend();
+console.log(recommendations);
+var sortedDocs = recommender.getSortedDocs();
+console.log(sortedDocs);
+
+var expectedWeights = {
+    current: 0.3386294361119891,
+    date: 0.3386294361119891,
+    get: 0.3386294361119891,
+    javascript: 0.47725887222397817,
+    time: 0.2575364144903562
+};
+var expectedRecommendations = [1, 0.801901630090658, 0, 0.3223967271549685];
+var expectedSortedDocs = [
+    'get the current date and time in javascript',
+    'get the current date and time in python',
+    'what is the time now',
+    'something very different'
+];
+console.log(sortedDocs);
+
+assert.deepEqual(weights, expectedWeights);
+assert.deepEqual(recommendations, expectedRecommendations);
+assert.deepEqual(sortedDocs, expectedSortedDocs);
+
+// TF-IDF with files input
+console.log('TF-IDF with files input');
 var weights = recommender.tfidf(documentPath, documentsPath);
 var recommendations = recommender.recommend();
 var sortedDocs = recommender.getSortedDocs();

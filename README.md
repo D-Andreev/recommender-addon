@@ -3,7 +3,7 @@ Recommender is a node addon with implementations of [tf-idf](https://en.wikipedi
 
 [![NPM](https://nodei.co/npm/recommender.png?downloads=true&downloadRank=true)](https://nodei.co/npm/recommender/) [![NPM](https://nodei.co/npm-dl/recommender.png?months=6&height=3)](https://nodei.co/npm/recommender/)
 
-[![NPM version](https://badge.fury.io/js/badge-list.svg)](https://www.npmjs.com/package/recommender) [![Open Source Love](https://badges.frapsoft.com/os/mit/mit.svg?v=102)](https://github.com/D-Andreev/recommender-addon/blob/master/LICENSE)
+[![Build Status](https://travis-ci.org/D-Andreev/recommender-addon.svg?branch=master)](https://travis-ci.org/D-Andreev/recommender-addon) [![NPM version](https://badge.fury.io/js/badge-list.svg)](https://www.npmjs.com/package/recommender) [![Open Source Love](https://badges.frapsoft.com/os/mit/mit.svg?v=102)](https://github.com/D-Andreev/recommender-addon/blob/master/LICENSE)
 
  * **[Installation](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#installation)**
  * **[Usage](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#usage)**

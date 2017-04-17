@@ -37,6 +37,27 @@ public:
 		this->weights = result;
 	}
 
+	void tfidf(string query, vector<string> documents, bool useStopWords) {
+		map<string, double> result;
+
+		this->useStopWords = useStopWords;
+		this->document = this->splitLineToWords(query);
+		for (int i = 0; i < documents.size(); i++) {
+			this->rawDocuments.push_back(documents[i]);
+			this->documents.push_back(splitLineToWords(documents[i]));
+		}
+
+		int totalNumberOfTerms = this->document.size();
+		for (int i = 0; i < totalNumberOfTerms; i++) {
+			string currentTerm = this->document[i];
+			int numberOfTimesTermAppears = this->getNumberOfTimesTermAppears(currentTerm, this->document);
+			double tfidf = this->calculateTfIdf(numberOfTimesTermAppears, totalNumberOfTerms, currentTerm);
+			result[currentTerm] += tfidf;
+		}
+
+		this->weights = result;
+	}
+
 	vector<double> recommend() {
 		vector<double> similarities;
 		if (this->weights.size() == 0) return similarities;
