@@ -10,28 +10,56 @@ Recommender r;
 vector<double> similarities;
 
 NAN_METHOD(TfIdf) {
-	if (!info[0]->IsString() || !info[1]->IsString()) {
+	if (!info[0]->IsString()) Nan::ThrowError("Invalid params");
+	if (info[1]->IsString()) {
+		v8::String::Utf8Value documentFilePathValue(info[0]->ToString());
+		v8::String::Utf8Value documentsFilePathValue(info[1]->ToString());
+
+		string documentFilePath(*documentFilePathValue);
+		string documentsFilePath(*documentsFilePathValue);
+
+		bool useStopWords = false;
+		if (info[2]->IsBoolean() && info[2]->BooleanValue()) useStopWords = info[2]->BooleanValue();
+
+		r.tfidf(documentFilePath, documentsFilePath, useStopWords);
+
+		Local<Object> obj = Nan::New<Object>();
+		for (auto const &ent1 : r.weights) {
+			Local<String> prop = Nan::New<String>(ent1.first).ToLocalChecked();
+			Nan::Set(obj, prop, Nan::New<Number>(ent1.second));
+		}
+
+		info.GetReturnValue().Set(obj);
+	}
+	else if (info[1]->IsArray()) {
+		vector<string> documents;
+		v8::String::Utf8Value inputQuery(info[0]->ToString());
+		string query(*inputQuery);
+		bool useStopWords = false;
+		if (info[2]->IsBoolean() && info[2]->BooleanValue()) useStopWords = info[2]->BooleanValue();
+
+		Local<Array> inputDocuments = Local<Array>::Cast(info[1]);
+		for (unsigned i = 0; i < inputDocuments->Length(); i++) {
+			if (Nan::Has(inputDocuments, i).FromJust()) {
+				v8::String::Utf8Value doc(Nan::Get(inputDocuments, i).ToLocalChecked()->ToString());
+				string document(*doc);
+				documents.push_back(document);
+			}
+		}
+
+		r.tfidf(query, documents, useStopWords);
+
+		Local<Object> obj = Nan::New<Object>();
+		for (auto const &ent1 : r.weights) {
+			Local<String> prop = Nan::New<String>(ent1.first).ToLocalChecked();
+			Nan::Set(obj, prop, Nan::New<Number>(ent1.second));
+		}
+
+		info.GetReturnValue().Set(obj);
+	}
+	else {
 		Nan::ThrowError("Invalid params");
 	}
-
-	v8::String::Utf8Value documentFilePathValue(info[0]->ToString());
-	v8::String::Utf8Value documentsFilePathValue(info[1]->ToString());
-
-	string documentFilePath(*documentFilePathValue);
-	string documentsFilePath(*documentsFilePathValue);
-
-	bool useStopWords = false;
-	if (info[2]->IsBoolean() && info[2]->BooleanValue()) useStopWords = info[2]->BooleanValue();
-
-	r.tfidf(documentFilePath, documentsFilePath, useStopWords);
-
-	Local<Object> obj = Nan::New<Object>();
-	for (auto const &ent1 : r.weights) {
-		Local<String> prop = Nan::New<String>(ent1.first).ToLocalChecked();
-		Nan::Set(obj, prop, Nan::New<Number>(ent1.second));
-	}
-	
-	info.GetReturnValue().Set(obj);
 }
 
 NAN_METHOD(Recommend) {
