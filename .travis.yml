@@ -3,4 +3,5 @@ node_js:
   - "7"
 
 script:
-    - npm install
+    - cd ./demo
+	- npm i
