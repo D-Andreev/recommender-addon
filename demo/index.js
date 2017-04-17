@@ -26,6 +26,7 @@ var expectedSortedDocs = [
     'something very different'
 ];
 console.log(sortedDocs);
+
 assert.deepEqual(weights, expectedWeights);
 assert.deepEqual(recommendations, expectedRecommendations);
 assert.deepEqual(sortedDocs, expectedSortedDocs);
