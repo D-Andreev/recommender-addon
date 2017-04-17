@@ -8,8 +8,8 @@ Recommender is a node addon with implementations of [tf-idf](https://en.wikipedi
  * **[Installation](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#installation)**
  * **[Usage](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#usage)**
  * **[API](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#api)**
- * **[Run examples and benchmarks](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#license)**
- * **[Contributing](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#license)**
+ * **[Run examples and benchmarks](https://github.com/D-Andreev/recommender-addon/blob/28ba4c3f5fdb3b66215b6f3420d568c592e8c9a3/README.md#run-examples-and-benchmarks)**
+ * **[Contributing](https://github.com/D-Andreev/recommender-addon/blob/28ba4c3f5fdb3b66215b6f3420d568c592e8c9a3/README.md#contributing)**
  * **[License](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#license)**
 
 ## Installation
