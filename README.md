@@ -23,7 +23,7 @@ We create two text files with the input. Save this in `search_query.txt`.
 ```
 get current date time javascript
 ```
-And this into `documents.txt`. Every document is seperated by a new line and every word is seprated by space.
+And this into `documents.txt`. Every document is seperated by a new line and every word is separated by space.
 ```
 get the current date and time in javascript
 get the current date and time in python
@@ -46,14 +46,14 @@ console.log(sortedDocs);
 /**
     get the current date and time in javascript
     get the current date and time in python
+	what is the time now
     something very different
-    what is the time now
 */
 ```
 We can also pass `filterStopWords` which is optional and `false` by default. If `filterStopWords` is `true` those words will be filtered out and not considered when calculating similarity. Stop-words are those words that appear very commonly across the documents, therefore loosing their representativeness and don't contribute to the meaning of the text. i.e (`a`, `about`, `the`, `if`, `it`, `is`...). The full stop words list can be viewed [here](https://github.com/D-Andreev/recommender-addon/blob/master/include/Constants.h#L8).
 
 ### Collaborative filtering
-The input for collaborative filtering is a table with user ratings. Each row is an item and each column is a user. Consider the following table with ratings of movies. `U01,U02,U03...U13` are users and `M01,M02,M03...M6` are movies. A rating of `0` means that the user has not rated the movie. Ratings range from `1` to `5`.
+The input for collaborative filtering is a table with user ratings. Each row is an item and each column is a user. Consider the following table with ratings of movies. `U01,U02,U03...U13` are users and `M01,M02,M03...M6` are movies. A rating of `0` means that the user has not rated the movie. In this example ratings range from `1` to `5`, but they can be in any system (i.e. 1-10).
 ```
         U01   U02   U03   U04   U05   U06   U07   U08   U10   U11   U12   U13
    M1   1     0     3     0     0     5     0     0     5     0     4     0
@@ -77,7 +77,7 @@ var ratings = [
 var movieIndex = 0;
 var userIndex = 4;
 // We are predicting the rating of U05 for M1.
-var predictedRating = recommender.getRatingPrediction(userRatings, movieIndex, userIndex);
+var predictedRating = recommender.getRatingPrediction(ratings, movieIndex, userIndex);
 console.log(predictedRating);
 // Output: 2.586406866934817
 ```
@@ -180,12 +180,12 @@ var predictedRating = recommender.getRatingPrediction(ratings, rowIndex, colInde
 - `node index.js` to run the examples.
 - `node benchmarks.js` to run the benchmarks.
 
-The benchmarks run tfidf and rating prediction with relatively large inputs. Can be viewed [here](https://github.com/D-Andreev/recommender-addon/blob/master/demo/benchmarks.js). 
+Can be viewed [here](https://github.com/D-Andreev/recommender-addon/blob/master/demo/benchmarks.js). 
 ```
-tfidf*10: 1843.378ms
-ratingPrediction*10: 3445.166ms
-tfidf*10: 1834.131ms
-ratingPrediction*10: 3540.355ms
+tfidf*10: 887.584ms
+ratingPrediction*10: 2051.364ms
+tfidf*10: 899.992ms
+ratingPrediction*10: 2081.731ms
 ```
 
 ### Contributing

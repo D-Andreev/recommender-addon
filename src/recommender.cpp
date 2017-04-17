@@ -39,15 +39,15 @@ public:
 
 	vector<double> recommend() {
 		vector<double> similarities;
-		if (this->weights.size() == 0) similarities;
+		if (this->weights.size() == 0) return similarities;
 		vector<double> queryVector;
 		for (auto const &entry : this->weights) {
 			queryVector.push_back(entry.second);
 		}
 
-		for (int i = 0; i < this->documents.size(); i++) {
+		for (unsigned i = 0; i < this->documents.size(); i++) {
 			vector<double> documentVector(queryVector.size());
-			for (int j = 0; j < this->documents[i].size(); j++) {
+			for (unsigned j = 0; j < this->documents[i].size(); j++) {
 				string currentTerm = this->documents[i][j];
 				bool queryTermExistsInDocument = false;
 				int foundIndex = 0;
@@ -89,7 +89,7 @@ public:
 		while (sorted.size() <= similarities.size() - 1) {
 			double currentMax = -DBL_MAX;
 			int currentMaxIndex = 0;
-			for (int i = 0; i < similarities.size(); i++) {
+			for (unsigned i = 0; i < similarities.size(); i++) {
 				if (this->isUsed(usedIndices, i)) continue;
 				if (similarities[i] >= currentMax) {
 					currentMax = similarities[i];
@@ -111,7 +111,7 @@ public:
 		vector<int> usedIndices;
 		double sumOfNeighbourSimilarities = 0, weightedRatingsSum = 0;
 
-		for (int i = 0; i < ratings.size(); i++) {
+		for (unsigned i = 0; i < ratings.size(); i++) {
 			originalRatings.push_back(ratings[i]);
 		}
 		this->setCenterCosine(rowIndex, ratings[rowIndex]);
@@ -163,7 +163,7 @@ private:
 			transform(word.begin(), word.end(), word.begin(), ::tolower);
 			if (this->useStopWords) {
 				bool isStopWord = false;
-				for (int i = 0; i < STOP_WORDS.size(); i++) {
+				for (unsigned i = 0; i < STOP_WORDS.size(); i++) {
 					if (word == STOP_WORDS[i]) {
 						isStopWord = true;
 						break;
@@ -180,7 +180,7 @@ private:
 
 	int getNumberOfTimesTermAppears(const string& term, vector<string> document) const {
 		int count = 0;
-		for (int i = 0; i < document.size(); i++) {
+		for (unsigned i = 0; i < document.size(); i++) {
 			if (document[i] == term) count++;
 		}
 
@@ -189,8 +189,8 @@ private:
 
 	int getNumberOfDocumentsWithTerm(string& term) const {
 		int count = 0;
-		for (int i = 0; i < this->documents.size(); i++) {
-			for (int j = 0; j < this->documents[i].size(); j++) {
+		for (unsigned i = 0; i < this->documents.size(); i++) {
+			for (unsigned j = 0; j < this->documents[i].size(); j++) {
 				if (this->documents[i][j] == term) {
 					count++;
 					break;
@@ -213,7 +213,7 @@ private:
 
 	double calculateDotProduct(vector<double> query, vector<double> document) const {
 		double sum = 0;
-		for (int i = 0; i < document.size(); i++) {
+		for (unsigned i = 0; i < document.size(); i++) {
 			sum += query[i] * document[i];
 		}
 
@@ -222,7 +222,7 @@ private:
 
 	double normalizeVector(vector<double> queryVector) const {
 		double normalized = 0;
-		for (int i = 0; i < queryVector.size(); i++) {
+		for (unsigned i = 0; i < queryVector.size(); i++) {
 			normalized += queryVector[i] * queryVector[i];
 		}
 
@@ -251,7 +251,7 @@ private:
 	}
 
 	void getCosineSimilarities(vector<vector<double>>& ratings, int rowIndex, double targetRowNormalized, map<int, double>& similarities) {
-		for (int i = 0; i < ratings.size(); i++) {
+		for (unsigned i = 0; i < ratings.size(); i++) {
 			if (i == rowIndex) continue;
 			this->setCenterCosine(i, ratings[i]);
 			double dotProduct = this->calculateDotProduct(ratings[rowIndex], ratings[i]);
@@ -267,7 +267,7 @@ private:
 
 	bool isUsed(vector<int> usedIndices, int index) const {
 		bool isUsed = false;
-		for (int k = 0; k < usedIndices.size(); k++) {
+		for (unsigned k = 0; k < usedIndices.size(); k++) {
 			if (usedIndices[k] == index) {
 				isUsed = true;
 				break;
@@ -278,7 +278,7 @@ private:
 	}
 
 	void calculateWeightedAverage(vector<int>& usedIndices,
-		int maxNeighbours,
+		unsigned maxNeighbours,
 		map<int, double> similarities,
 		vector<vector<double>> originalRatings,
 		int colIndex,

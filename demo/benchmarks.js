@@ -3,10 +3,10 @@
 var assert = require('assert');
 var bench = require('fastbench');
 var recommender = require('recommender');
-var documentPath = "resources\\document.txt";
-var documentsPath = "resources\\documents.txt";
-var longDocumentPath = "resources\\longDocument.txt";
-var longDocumentsPath = "resources\\longDocuments.txt";
+var documentPath = "./resources/document.txt";
+var documentsPath = "./resources/documents.txt";
+var longDocumentPath = "./resources/longDocument.txt";
+var longDocumentsPath = "./resources/longDocuments.txt";
 var ROWS = 1000;
 var COLS = 1000;
 

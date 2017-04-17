@@ -3,8 +3,8 @@
 var assert = require('assert');
 var recommender = require('recommender');
 
-var documentPath = "resources\\document.txt";
-var documentsPath = "resources\\documents.txt";
+var documentPath = "./resources/document.txt";
+var documentsPath = "./resources/documents.txt";
 
 // TF-IDF
 var weights = recommender.tfidf(documentPath, documentsPath);
