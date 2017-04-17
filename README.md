@@ -180,12 +180,12 @@ var predictedRating = recommender.getRatingPrediction(ratings, rowIndex, colInde
 - `node index.js` to run the examples.
 - `node benchmarks.js` to run the benchmarks.
 
-The benchmarks run tfidf and rating prediction with relatively large inputs. Can be viewed [here](https://github.com/D-Andreev/recommender-addon/blob/master/demo/benchmarks.js). 
+Can be viewed [here](https://github.com/D-Andreev/recommender-addon/blob/master/demo/benchmarks.js). 
 ```
-tfidf*10: 1843.378ms
-ratingPrediction*10: 3445.166ms
-tfidf*10: 1834.131ms
-ratingPrediction*10: 3540.355ms
+tfidf*10: 887.584ms
+ratingPrediction*10: 2051.364ms
+tfidf*10: 899.992ms
+ratingPrediction*10: 2081.731ms
 ```
 
 ### Contributing
