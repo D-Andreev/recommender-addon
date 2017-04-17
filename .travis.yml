@@ -4,4 +4,4 @@ node_js:
 
 script:
     - cd ./demo
-	- npm i
+    - npm i
