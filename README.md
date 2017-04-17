@@ -5,9 +5,10 @@ Recommender is a node addon with implementations of [tf-idf](https://en.wikipedi
 
 [![NPM version](https://badge.fury.io/js/badge-list.svg)](https://www.npmjs.com/package/recommender) [![Open Source Love](https://badges.frapsoft.com/os/mit/mit.svg?v=102)](https://github.com/D-Andreev/recommender-addon/blob/master/LICENSE)
 
- * **[Installation](##installation)**
- * **[Usage](##usage)**
- * **[API](##api)**
+ * **[Installation](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#installation)**
+ * **[Usage](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#usage)**
+ * **[API](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#api)**
+ * **[License](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#license)**
 
 ## Installation
  - `npm i recommender`
@@ -60,7 +61,7 @@ The input for collaborative filtering is a table with user ratings. Each row is 
    M5   0     0     4     3     4     2     0     0     0     0     2     5
    M6   1     0     3     0     3     0     0     2     0     0     4     0
 ```
-Aside from the ratings table we need to pass the row and column of the rating we wish to predict.
+Aside from the ratings table we need to pass the row index and column index for the rating we wish to predict.
 ```js
 var recommender = require('recommender');
 var ratings = [
@@ -79,7 +80,12 @@ console.log(predictedRating);
 // Output: 2.586406866934817
 ```
 ### API
-##### recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWOrds`)
+* **[recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendertfidfsearchqueryfilepath-documentsfilepath-usestopwords)**
+* **[recommender.recommend()](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommenderrecommend)**
+* **[recommender.getSortedDocs()](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetsorteddocs)**
+* **[recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetratingpredictionratings-rowindex-colindex)**
+
+##### recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`)
 ###### Arguments
 * `searchQueryFilePath` - A string with the file path of the search query text file. *(Required)*
 * `documentsFilePath` - A string with the file path of the documents text file. *(Required)*
@@ -144,7 +150,7 @@ var sortedDocs = recommender.getSortedDocs();
 ```
 ##### recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`)
 ###### Arguments
-* `ratings` - A two dimensional array with float numbers representing the ratings. *(Required)*
+* `ratings` - A two dimensional array with numbers representing the ratings. *(Required)*
 * `rowIndex` - An integer with the index of the target row for prediction. *(Required)*
 * `colIndex` - An integer with the index of the target column for prediction. *(Required)*
 ###### Returns
@@ -190,4 +196,3 @@ SOFTWARE.
 
 [![forthebadge](http://forthebadge.com/images/badges/contains-technical-debt.svg)](http://forthebadge.com) [![forthebadge](http://forthebadge.com/images/badges/check-it-out.svg)](http://forthebadge.com) [![forthebadge](http://forthebadge.com/images/badges/no-ragrets.svg)](http://forthebadge.com) [![forthebadge](http://forthebadge.com/images/badges/winter-is-coming.svg)](http://forthebadge.com) [![forthebadge](http://forthebadge.com/images/badges/powered-by-jeffs-keyboard.svg)](http://forthebadge.com)
 [![forthebadge](http://forthebadge.com/images/badges/compatibility-ie-6.svg)](http://forthebadge.com)
-
