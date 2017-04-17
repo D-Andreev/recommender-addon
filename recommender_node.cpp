@@ -10,11 +10,6 @@ Recommender r;
 vector<double> similarities;
 
 NAN_METHOD(TfIdf) {
-	ofstream myfile;
-	myfile.open("C:\\Users\\Dimitar\\Desktop\\cpplog\\log.txt");
-
-	myfile << info[0]->IsString() << info[1]->IsString() << info[1]->IsArray() << endl;
-
 	if (!info[0]->IsString()) Nan::ThrowError("Invalid params");
 	if (info[1]->IsString()) {
 		v8::String::Utf8Value documentFilePathValue(info[0]->ToString());
@@ -37,7 +32,6 @@ NAN_METHOD(TfIdf) {
 		info.GetReturnValue().Set(obj);
 	}
 	else if (info[1]->IsArray()) {
-		myfile << "Writing this to a file.\n";
 		vector<string> documents;
 		v8::String::Utf8Value inputQuery(info[0]->ToString());
 		
@@ -45,27 +39,21 @@ NAN_METHOD(TfIdf) {
 
 		bool useStopWords = false;
 		if (info[2]->IsBoolean() && info[2]->BooleanValue()) useStopWords = info[2]->BooleanValue();
-		myfile << query << " " << useStopWords << endl;
 		Local<Array> inputDocuments = Local<Array>::Cast(info[1]);
 		for (unsigned i = 0; i < inputDocuments->Length(); i++) {
 			if (Nan::Has(inputDocuments, i).FromJust()) {
 				v8::String::Utf8Value doc(Nan::Get(inputDocuments, i).ToLocalChecked()->ToString());
 				string document(*doc);
-				myfile << document << " " << endl;
 				documents.push_back(document);
 			}
 		}
-		myfile << "BEFORE " << endl;
 		r.tfidf(query, documents, useStopWords);
-		myfile << "AFTER " << endl;
 		Local<Object> obj = Nan::New<Object>();
 		for (auto const &ent1 : r.weights) {
-			myfile << ent1.first << " " << ent1.second << endl;
 			Local<String> prop = Nan::New<String>(ent1.first).ToLocalChecked();
 			Nan::Set(obj, prop, Nan::New<Number>(ent1.second));
 		}
 
-		myfile.close();
 		info.GetReturnValue().Set(obj);
 	}
 	else {
