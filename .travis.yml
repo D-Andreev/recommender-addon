@@ -17,5 +17,7 @@ before_install:
 - npm i nan@2.3.3 -g
 
 script:
-    - cd ./demo
-    - npm i
+- cd ./demo
+- npm i
+- node index.js
+- node benchmarks.js
