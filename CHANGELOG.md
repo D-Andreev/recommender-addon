@@ -7,3 +7,7 @@
 
 ## 1.1.0
 - Add support for passing string and array to `recommender.tfidf`
+
+## 1.1.1
+- Fix readme
+- Add basic js tests
