@@ -9,8 +9,9 @@ before_install:
 - sudo apt-get install python-software-properties
 - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
 - sudo apt-get update
-- sudo apt-get install gcc-4.7 g++-4.7
-- sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.7 50
+- sudo apt-get install gcc-5.1 g++-5.1
+- sudo rm /bin/usr/g++
+- sudo ln -s /usr/bin/g++-5 /usr/bin/g++
 - npm i node-gyp -g
 - npm i nan@2.3.3 -g
 
