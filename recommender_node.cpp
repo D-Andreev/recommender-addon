@@ -34,11 +34,10 @@ NAN_METHOD(TfIdf) {
 	else if (info[1]->IsArray()) {
 		vector<string> documents;
 		v8::String::Utf8Value inputQuery(info[0]->ToString());
-		
 		string query(*inputQuery);
-
 		bool useStopWords = false;
 		if (info[2]->IsBoolean() && info[2]->BooleanValue()) useStopWords = info[2]->BooleanValue();
+
 		Local<Array> inputDocuments = Local<Array>::Cast(info[1]);
 		for (unsigned i = 0; i < inputDocuments->Length(); i++) {
 			if (Nan::Has(inputDocuments, i).FromJust()) {
@@ -47,7 +46,9 @@ NAN_METHOD(TfIdf) {
 				documents.push_back(document);
 			}
 		}
+
 		r.tfidf(query, documents, useStopWords);
+
 		Local<Object> obj = Nan::New<Object>();
 		for (auto const &ent1 : r.weights) {
 			Local<String> prop = Nan::New<String>(ent1.first).ToLocalChecked();
