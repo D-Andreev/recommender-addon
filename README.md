@@ -174,47 +174,6 @@ An array with float point numbers representing the similarities. Every index cor
 ```js
 [1, 0.801901630090658, 0, 0.3223967271549685]
 ```
-##### recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`)
-###### Arguments
-* `searchQueryFilePath` - A string with the file path of the search query text file. *(Required)*
-* `documentsFilePath` - A string with the file path of the documents text file. *(Required)*
-* `filterStopWords` - A boolean to filter out the stop words or not. *(Optional)* *(Default: `false`)*
-###### Returns
-An object with each of the terms in the search query as keys and a float number with the weight of the term.
-```js
-{
-    current: 0.3386294361119891,
-    date: 0.3386294361119891,
-    get: 0.3386294361119891,
-    javascript: 0.47725887222397817,
-    time: 0.2575364144903562
-}
-```
-###### Examples
-```js
-var recommender = require('recommender');
-
-var searchQueryPath = "./search_query.txt";
-var documentsPath = "./documents.txt";
-bool filterStopWords = true;
-var weights = recommender.tfidf(searchQueryPath, documentsPath, filterStopWords);
-```
-##### recommender.recommend()
-###### Returns
-An array with float point numbers representing the similarities. Every index corresponds to the index of the document in `documents.txt`.
-```js
-[1, 0.801901630090658, 0, 0.3223967271549685]
-```
-###### Examples
-```js
-var recommender = require('recommender');
-
-var searchQueryPath = "./search_query.txt";
-var documentsPath = "./documents.txt";
-
-var weights = recommender.tfidf(searchQueryPath, documentsPath);
-var recommendations = recommender.recommend();
-```
 ##### recommender.getSortedDocs()
 ###### Returns
 An array of strings with the sorted by similarity documents.
