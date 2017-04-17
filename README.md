@@ -8,6 +8,8 @@ Recommender is a node addon with implementations of [tf-idf](https://en.wikipedi
  * **[Installation](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#installation)**
  * **[Usage](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#usage)**
  * **[API](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#api)**
+ * **[Run examples and benchmarks](https://github.com/D-Andreev/recommender-addon/blob/28ba4c3f5fdb3b66215b6f3420d568c592e8c9a3/README.md#run-examples-and-benchmarks)**
+ * **[Contributing](https://github.com/D-Andreev/recommender-addon/blob/28ba4c3f5fdb3b66215b6f3420d568c592e8c9a3/README.md#contributing)**
  * **[License](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#license)**
 
 ## Installation
@@ -171,6 +173,24 @@ var rowIndex = 0;
 var colIndex = 4;
 var predictedRating = recommender.getRatingPrediction(ratings, rowIndex, colIndex); // 2.586406866934817
 ```
+### Run examples and benchmarks
+- Clone the repo.
+- `npm i` in the main folder.
+- `npm i` in `/demo` folder.
+- `node index.js` to run the examples.
+- `node benchmarks.js` to run the benchmarks.
+
+The benchmarks run tfidf and rating prediction with relatively large inputs. Can be viewed [here](https://github.com/D-Andreev/recommender-addon/blob/master/demo/benchmarks.js). 
+```
+tfidf*10: 1843.378ms
+ratingPrediction*10: 3445.166ms
+tfidf*10: 1834.131ms
+ratingPrediction*10: 3540.355ms
+```
+
+### Contributing
+Pull requests are welcome.
+
 ### License
 MIT License
 
