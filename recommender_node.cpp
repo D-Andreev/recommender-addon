@@ -38,7 +38,7 @@ NAN_METHOD(Recommend) {
 	similarities = r.recommend();
 	Local<Array> result = New<v8::Array>(similarities.size());
 
-	for (int i = 0; i < similarities.size(); i++) {
+	for (unsigned i = 0; i < similarities.size(); i++) {
 		Nan::Set(result, i, Nan::New<Number>(similarities[i]));
 	}
 
