@@ -7,11 +7,12 @@ before_install:
 - sudo apt-get install build-essential checkinstall
 - sudo apt-get install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev
 - sudo apt-get install python-software-properties
+- sudo apt-get install python-software-properties
 - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
 - sudo apt-get update
-- sudo apt-get install gcc-5.1 g++-5.1
-- sudo rm /bin/usr/g++
-- sudo ln -s /usr/bin/g++-5 /usr/bin/g++
+- sudo apt-get install gcc-5 g++-5
+- sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 80 --slave /usr/bin/g++ g++ /usr/bin/g++-5
+- sudo update-alternatives --set gcc /usr/bin/gcc-5
 - npm i node-gyp -g
 - npm i nan@2.3.3 -g
 
