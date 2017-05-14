@@ -7,7 +7,7 @@
 
 using namespace std;
 
-static class Utils {
+class Utils {
 public:
 	static double calculateDotProduct(const vector<double> &a, const vector<double> &b);
 	static double normalizeVector(const vector<double> &a);
