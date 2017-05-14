@@ -11,3 +11,6 @@
 ## 1.1.1
 - Fix readme
 - Add basic js tests
+
+## 1.1.2
+- Separate some methods in Utils class
