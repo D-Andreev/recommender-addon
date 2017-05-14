@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <time.h>
-#include "../src/Recommender.cpp"
+#include "../src/recommender.cpp"
 #include <stdexcept>
 
 
