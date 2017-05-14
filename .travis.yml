@@ -20,6 +20,4 @@ script:
 - npm i
 - node index.js
 - node benchmarks.js
-- cd ..
-- cd ./example
-- g++ ./main.cpp
+- g++ ../example/main.cpp
