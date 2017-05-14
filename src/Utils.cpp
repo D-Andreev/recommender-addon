@@ -6,10 +6,6 @@
 using namespace std;
 
 double Utils::calculateDotProduct(const vector<double> &a, const vector<double> &b) {
-	if (a.size() != b.size()) {
-		throw std::invalid_argument("Vectors are not equal lengths");
-	}
-
 	double sum = 0;
 	for (unsigned i = 0; i < a.size(); i++) {
 		sum += a[i] * b[i];
