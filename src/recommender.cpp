@@ -145,6 +145,7 @@ public:
 		double similaritiesSum = 0;
 		double ratingsSum = 0;
 		vector<double> neighbourhood = this->getNeighbourhood(rowIndex, colIndex, ratings, ids);
+		if (!neighbourhood.size()) return 0;
 		for (unsigned i = 0; i < neighbourhood.size(); i++) {
 			similaritiesSum += neighbourhood[i];
 			ratingsSum += originalRatings[ids[i]][colIndex] * neighbourhood[i];
