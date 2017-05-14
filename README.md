@@ -228,10 +228,10 @@ var predictedRating = recommender.getRatingPrediction(ratings, rowIndex, colInde
 
 Can be viewed [here](https://github.com/D-Andreev/recommender-addon/blob/master/demo/benchmarks.js). 
 ```
-tfidf*10: 887.584ms
-ratingPrediction*10: 2051.364ms
-tfidf*10: 899.992ms
-ratingPrediction*10: 2081.731ms
+tfidf*10: 10598.283ms
+ratingPrediction*10: 0.179ms
+tfidf*10: 11217.339ms
+ratingPrediction*10: 0.095ms
 ```
 
 ### Contributing

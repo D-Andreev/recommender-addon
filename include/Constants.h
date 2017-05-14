@@ -1,11 +1,11 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#include <vector>
+#include <set>
 #include <string>
 
-const static double MAX_NEIGHBOURS_PERCENT = 0.25;
-const static std::vector<std::string> STOP_WORDS = {
+const static double MAX_NEIGHBOURS = 100;
+const std::set<std::string> STOP_WORDS = {
 	"a",
 	"about",
 	"above",
@@ -457,5 +457,6 @@ const static std::vector<std::string> STOP_WORDS = {
 	"you've",
 	"z"
 };
+
 
 #endif

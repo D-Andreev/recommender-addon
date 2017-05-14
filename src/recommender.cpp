@@ -7,6 +7,7 @@
 #include <float.h>
 #include <math.h>
 #include "../include/Constants.h"
+#include "../include/Utils.h";
 
 using namespace std;
 
@@ -61,6 +62,7 @@ public:
 	vector<double> recommend() {
 		vector<double> similarities;
 		if (this->weights.size() == 0) return similarities;
+
 		vector<double> queryVector;
 		for (auto const &entry : this->weights) {
 			queryVector.push_back(entry.second);
@@ -68,6 +70,7 @@ public:
 
 		for (unsigned i = 0; i < this->documents.size(); i++) {
 			vector<double> documentVector(queryVector.size());
+			bool hasEqualTerms = false;
 			for (unsigned j = 0; j < this->documents[i].size(); j++) {
 				string currentTerm = this->documents[i][j];
 				bool queryTermExistsInDocument = false;
@@ -77,6 +80,7 @@ public:
 					if (entry.first == currentTerm) {
 						queryTermExistsInDocument = true;
 						foundIndex = idx;
+						hasEqualTerms = true;
 						break;
 					}
 					idx++;
@@ -88,61 +92,67 @@ public:
 				double tfidf = this->calculateTfIdf(numberOfTimesTermAppears, totalNumberOfTerms, currentTerm);
 				documentVector[foundIndex] = tfidf;
 			}
-			double dotProduct = this->calculateDotProduct(queryVector, documentVector);
-			if (dotProduct == 0) {
+			if (!hasEqualTerms) {
 				similarities.push_back(0);
 				continue;
 			}
-			double queryNormalized = this->normalizeVector(queryVector);
-			double documentNormalized = this->normalizeVector(documentVector);
-			double cosineSimilarity = dotProduct / (queryNormalized * documentNormalized);
-			similarities.push_back(cosineSimilarity);
+			double dotProduct = Utils::calculateDotProduct(queryVector, documentVector);
+			double queryNormalized = Utils::normalizeVector(queryVector);
+			double documentNormalized = Utils::normalizeVector(documentVector);
+			double centeredCosineSimilarity = dotProduct / (queryNormalized * documentNormalized);
+			similarities.push_back(centeredCosineSimilarity);
 		}
 
 		return similarities;
 	}
 
 	vector<string> getSortedDocuments(vector<double> similarities) {
-		vector<string> sorted;
-		if (similarities.size() == 0) return sorted;
-		vector<int> usedIndices;
+		vector<string> result;
+		if (similarities.size() == 0) return result;
 
-		while (sorted.size() <= similarities.size() - 1) {
-			double currentMax = -DBL_MAX;
-			int currentMaxIndex = 0;
+		vector<int> used;
+		while (result.size() < similarities.size()) {
+			double max = -DBL_MAX;
+			int maxIndex = 0;
 			for (unsigned i = 0; i < similarities.size(); i++) {
-				if (this->isUsed(usedIndices, i)) continue;
-				if (similarities[i] >= currentMax) {
-					currentMax = similarities[i];
-					currentMaxIndex = i;
+				bool isUsed = false;
+				for (unsigned j = 0; j < used.size(); j++) {
+					if (used[j] == i) {
+						isUsed = true;
+						break;
+					}
+				}
+				if (isUsed) continue;
+				if (similarities[i] > max) {
+					max = similarities[i];
+					maxIndex = i;
 				}
 			}
-
-			sorted.push_back(this->rawDocuments[currentMaxIndex]);
-			usedIndices.push_back(currentMaxIndex);
+			used.push_back(maxIndex);
+			result.push_back(this->rawDocuments[maxIndex]);
 		}
 
-		return sorted;
+		return result;
 	}
 
-	double getRatingPrediction(vector<vector<double>> ratings, int rowIndex, int colIndex) {
+	double getRatingPrediction(vector<vector<double>> &ratings, int rowIndex, int colIndex) {
 		vector<vector<double>> originalRatings;
-		int maxNeighbours = ratings.size() * MAX_NEIGHBOURS_PERCENT;
-		map<int, double> similarities;
-		vector<int> usedIndices;
-		double sumOfNeighbourSimilarities = 0, weightedRatingsSum = 0;
-
 		for (unsigned i = 0; i < ratings.size(); i++) {
 			originalRatings.push_back(ratings[i]);
 		}
-		this->setCenterCosine(rowIndex, ratings[rowIndex]);
-		double targetRowNormalized = this->normalizeVector(ratings[rowIndex]);
-		this->getCosineSimilarities(ratings, rowIndex, targetRowNormalized, similarities);
 
-		this->calculateWeightedAverage(usedIndices, maxNeighbours, similarities,
-			originalRatings, colIndex, sumOfNeighbourSimilarities, weightedRatingsSum);
+		vector<int> ids;
+		double similaritiesSum = 0;
+		double ratingsSum = 0;
+		vector<double> neighbourhood = this->getNeighbourhood(rowIndex, colIndex, ratings, ids);
+		if (!neighbourhood.size()) return 0;
+		for (unsigned i = 0; i < neighbourhood.size(); i++) {
+			similaritiesSum += neighbourhood[i];
+			ratingsSum += originalRatings[ids[i]][colIndex] * neighbourhood[i];
+		}
 
-		return weightedRatingsSum / sumOfNeighbourSimilarities;
+		double res = ratingsSum / similaritiesSum;
+		return res;
 	}
 private:
 	bool useStopWords = false;
@@ -183,14 +193,7 @@ private:
 		while (s >> word) {
 			transform(word.begin(), word.end(), word.begin(), ::tolower);
 			if (this->useStopWords) {
-				bool isStopWord = false;
-				for (unsigned i = 0; i < STOP_WORDS.size(); i++) {
-					if (word == STOP_WORDS[i]) {
-						isStopWord = true;
-						break;
-					}
-				}
-
+				const bool isStopWord = STOP_WORDS.find(word) != STOP_WORDS.end();
 				if (isStopWord) continue;
 			}
 			document.push_back(word);
@@ -200,22 +203,14 @@ private:
 	}
 
 	int getNumberOfTimesTermAppears(const string& term, vector<string> document) const {
-		int count = 0;
-		for (unsigned i = 0; i < document.size(); i++) {
-			if (document[i] == term) count++;
-		}
-
-		return count;
+		return std::count(document.begin(), document.end(), term);
 	}
 
 	int getNumberOfDocumentsWithTerm(string& term) const {
 		int count = 0;
 		for (unsigned i = 0; i < this->documents.size(); i++) {
-			for (unsigned j = 0; j < this->documents[i].size(); j++) {
-				if (this->documents[i][j] == term) {
-					count++;
-					break;
-				}
+			if (this->getNumberOfTimesTermAppears(term, this->documents[i]) >= 1) {
+				count++;
 			}
 		}
 
@@ -232,96 +227,29 @@ private:
 		return tfidf;
 	}
 
-	double calculateDotProduct(vector<double> query, vector<double> document) const {
-		double sum = 0;
-		for (unsigned i = 0; i < document.size(); i++) {
-			sum += query[i] * document[i];
-		}
+	vector<double> getNeighbourhood(int index, int colIndex, vector<vector<double>> &ratings, vector<int> &ids) {
+		vector<double> neighbourhood;
+		Utils::subtractRawMeanFromVector(ratings[index]);
+		double normA = Utils::normalizeVector(ratings[index]);
+		neighbourhood = this->getSimilarities(ratings, normA, index, colIndex, ids);
 
-		return sum;
+		return neighbourhood;
 	}
 
-	double normalizeVector(vector<double> queryVector) const {
-		double normalized = 0;
-		for (unsigned i = 0; i < queryVector.size(); i++) {
-			normalized += queryVector[i] * queryVector[i];
-		}
-
-		return sqrt(normalized);
-	}
-
-	vector<double> setCenterCosine(int index, vector<double>& ratings) {
-		double averageMean = 0;
-		int ratedItems = 0;
-		double ratingsSum = 0;
-		int totalItemsInRow = ratings.size();
-
-		for (int j = 0; j < totalItemsInRow; j++) {
-			if (ratings[j] == 0) continue;
-			ratingsSum += ratings[j];
-			ratedItems++;
-		}
-
-		averageMean = ratingsSum / ratedItems;
-		for (int j = 0; j < totalItemsInRow; j++) {
-			if (ratings[j] == 0) continue;
-			ratings[j] -= averageMean;
-		}
-
-		return ratings;
-	}
-
-	void getCosineSimilarities(vector<vector<double>>& ratings, int rowIndex, double targetRowNormalized, map<int, double>& similarities) {
+	vector<double> getSimilarities(vector<vector<double>> &ratings, double normA, int index, int colIndex, vector<int> &ids) {
+		vector<double> similarities;
 		for (unsigned i = 0; i < ratings.size(); i++) {
-			if (i == rowIndex) continue;
-			this->setCenterCosine(i, ratings[i]);
-			double dotProduct = this->calculateDotProduct(ratings[rowIndex], ratings[i]);
-			if (dotProduct == 0) {
-				similarities[i] = 0;
-				continue;
-			}
-			double currentRowNormalized = this->normalizeVector(ratings[i]);
-			double cosineSimilarity = dotProduct / (targetRowNormalized * currentRowNormalized);
-			similarities[i] = cosineSimilarity;
-		}
-	}
-
-	bool isUsed(vector<int> usedIndices, int index) const {
-		bool isUsed = false;
-		for (unsigned k = 0; k < usedIndices.size(); k++) {
-			if (usedIndices[k] == index) {
-				isUsed = true;
-				break;
-			}
+			if (i == index) continue;
+			if (ratings[i][colIndex] == 0) continue;
+			Utils::subtractRawMeanFromVector(ratings[i]);
+			double dotProduct = Utils::calculateDotProduct(ratings[index], ratings[i]);
+			double normB = Utils::normalizeVector(ratings[i]);
+			double cosineSimilarity = Utils::calculateCosineSimilarity(dotProduct, normA, normB);
+			if (cosineSimilarity < 0) continue;
+			similarities.push_back(cosineSimilarity);
+			ids.push_back(i);
 		}
 
-		return isUsed;
-	}
-
-	void calculateWeightedAverage(vector<int>& usedIndices,
-		unsigned maxNeighbours,
-		map<int, double> similarities,
-		vector<vector<double>> originalRatings,
-		int colIndex,
-		double& sumOfNeighbourSimilarities,
-		double& weightedRatingsSum) const {
-		while (usedIndices.size() <= maxNeighbours) {
-			double currentMaxRating = -DBL_MAX;
-			int currentMaxRatingIndex = 0;
-			bool maxRatingFound = false;
-			for (auto const &s : similarities) {
-				if (s.second == 0) continue;
-				if (this->isUsed(usedIndices, s.first)) continue;
-				if (s.second > currentMaxRating) {
-					currentMaxRating = s.second;
-					currentMaxRatingIndex = s.first;
-					maxRatingFound = true;
-				}
-			}
-			if (!maxRatingFound) break;
-			usedIndices.push_back(currentMaxRatingIndex);
-			sumOfNeighbourSimilarities += currentMaxRating;
-			weightedRatingsSum += similarities[currentMaxRatingIndex] * originalRatings[currentMaxRatingIndex][colIndex];
-		}
+		return similarities;
 	}
 };
