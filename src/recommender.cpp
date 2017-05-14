@@ -227,13 +227,8 @@ private:
 		return tfidf;
 	}
 
-	vector<double> getNeighbourhood(
-		int index,
-		int colIndex,
-		vector<vector<double>> &ratings,
-		vector<int> &ids) {
+	vector<double> getNeighbourhood(int index, int colIndex, vector<vector<double>> &ratings, vector<int> &ids) {
 		vector<double> neighbourhood;
-
 		Utils::subtractRawMeanFromVector(ratings[index]);
 		double normA = Utils::normalizeVector(ratings[index]);
 		neighbourhood = this->getSimilarities(ratings, normA, index, colIndex, ids);
@@ -241,12 +236,7 @@ private:
 		return neighbourhood;
 	}
 
-	vector<double> getSimilarities(
-		vector<vector<double>> &ratings,
-		double normA,
-		int index,
-		int colIndex,
-		vector<int> &ids) {
+	vector<double> getSimilarities(vector<vector<double>> &ratings, double normA, int index, int colIndex, vector<int> &ids) {
 		vector<double> similarities;
 		for (unsigned i = 0; i < ratings.size(); i++) {
 			if (i == index) continue;
