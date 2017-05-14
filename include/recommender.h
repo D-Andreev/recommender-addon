@@ -20,21 +20,28 @@ public:
 	void tfidf(string query, vector<string> documents, bool useStopWords);
 	vector<double> recommend();
 	vector<string> getSortedDocuments(vector<double> similarities);
-	double getRatingPrediction(vector<vector<double>> ratings, int rowIndex, int colIndex);
+	double getRatingPrediction(vector<vector<double>> &ratings, int rowIndex, int colIndex);
 private:
-	string readDocument(string documentFilePath);
+	bool useStopWords;
 	vector<vector<string>> vocabulary;
+
+	string readDocument(string documentFilePath);
 	vector<vector<string>> getVocabulary(string documentsFilePath);
 	vector<string> splitLineToWords(const string &line);
 	int getNumberOfTimesTermAppears(const string& term, vector<string> document) const;
 	int getNumberOfDocumentsWithTerm(string& termt) const;
 	double calculateTfIdf(int numberOfTimesTermAppears, int totalNumberOfTerms, string currentTerm) const;
-	double calculateDotProduct(vector<double> query, vector<double> document) const;
-	double normalizeVector(vector<double> queryVector) const;
-	vector<double> setCenterCosine(int index, vector<double>& ratings);
-	void getCosineSimilarities(vector<vector<double>>& ratings, int rowIndex, double targetRowNormalized, map<int, double>& similarities);
-	bool isUsed(vector<int> used, int index) const;
-	bool useStopWords;
+	vector<double> getNeighbourhood(
+		int index,
+		int colIndex,
+		vector<vector<double>> &ratings,
+		vector<int> &ids);
+	vector<double> getSimilarities(
+		vector<vector<double>> &ratings,
+		double normA,
+		int index,
+		int colIndex,
+		vector<int> &indecies);
 };
 
 #endif

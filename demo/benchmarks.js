@@ -7,27 +7,12 @@ var documentPath = "./resources/document.txt";
 var documentsPath = "./resources/documents.txt";
 var longDocumentPath = "./resources/longDocument.txt";
 var longDocumentsPath = "./resources/longDocuments.txt";
-var ROWS = 1000;
-var COLS = 1000;
-
-function generateRandomRatingsMatrix() {
-    var userRatings = [];
-    for (var i = 0; i < ROWS; i++) {
-        var row = [];
-        for (var j = 0; j < COLS; j++) {
-            row.push(getRandomInt(0, 5));
-        }
-        userRatings.push(row);
-    }
-
-    return userRatings;
-}
-
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-var userRatings = generateRandomRatingsMatrix();
+var userRatings =  [
+	[ 4, 0, 0, 1, 1, 0, 0 ],
+    [ 5, 5, 4, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 2, 4, 5, 0 ],
+    [ 0, 3, 0, 0, 0, 0, 3 ]
+]
 
 var run = bench([
     function tfidf(done) {
@@ -37,10 +22,8 @@ var run = bench([
         done();
     },
     function ratingPrediction(done) {
-        var rowIndex = 0;
-        var colIndex = 4;
-        var predictedRating = recommender.getRatingPrediction(userRatings, rowIndex, colIndex);
-        assert.ok(predictedRating > 0)
+        var predictedRating = recommender.getRatingPrediction(userRatings, 0, 1);
+        assert.ok(predictedRating === 5);
         done();
     }
 ], 10);

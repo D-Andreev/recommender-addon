@@ -30,7 +30,7 @@ var expectedWeights = {
     javascript: 0.47725887222397817,
     time: 0.2575364144903562
 };
-var expectedRecommendations = [1, 0.801901630090658, 0, 0.3223967271549685];
+var expectedRecommendations = [2.5074018466876864, 2.5074018466876864, 0, 1.5671261541798038];
 var expectedSortedDocs = [
     'get the current date and time in javascript',
     'get the current date and time in python',
@@ -56,7 +56,7 @@ var expectedWeights = {
     javascript: 0.47725887222397817,
     time: 0.2575364144903562
 };
-var expectedRecommendations = [1, 0.801901630090658, 0, 0.3223967271549685];
+var expectedRecommendations = [2.5074018466876864, 2.5074018466876864, 0, 1.5671261541798038];
 var expectedSortedDocs = [
     'get the current date and time in javascript',
     'get the current date and time in python',
