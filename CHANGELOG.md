@@ -14,3 +14,6 @@
 
 ## 1.1.2
 - Separate some methods in Utils class
+
+## 1.2.0
+- Add global baseline to API.
