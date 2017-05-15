@@ -99,7 +99,7 @@ public:
 			double dotProduct = Utils::calculateDotProduct(queryVector, documentVector);
 			double queryNormalized = Utils::normalizeVector(queryVector);
 			double documentNormalized = Utils::normalizeVector(documentVector);
-			double centeredCosineSimilarity = dotProduct / (queryNormalized * documentNormalized);
+			double centeredCosineSimilarity = dotProduct / (sqrt(queryNormalized) * sqrt(documentNormalized));
 			similarities.push_back(centeredCosineSimilarity);
 		}
 
@@ -141,18 +141,25 @@ public:
 			originalRatings.push_back(ratings[i]);
 		}
 
-		vector<int> ids;
 		double similaritiesSum = 0;
 		double ratingsSum = 0;
-		vector<double> neighbourhood = this->getNeighbourhood(rowIndex, colIndex, ratings, ids);
+		vector<pair<int, double>> neighbourhood = this->getNeighbourhood(rowIndex, colIndex, ratings);
 		if (!neighbourhood.size()) return 0;
 		for (unsigned i = 0; i < neighbourhood.size(); i++) {
-			similaritiesSum += neighbourhood[i];
-			ratingsSum += originalRatings[ids[i]][colIndex] * neighbourhood[i];
+			similaritiesSum += neighbourhood[i].second;
+			ratingsSum += originalRatings[neighbourhood[i].first][colIndex] * neighbourhood[i].second;
 		}
 
 		double res = ratingsSum / similaritiesSum;
 		return res;
+	}
+
+	double getGlobalBaselineRatingPrediction(vector<vector<double>> &ratings, int rowIndex, int colIndex) {
+		double meanRating = Utils::getMean(ratings);
+		double userMeanRating = Utils::getRowMean(ratings[rowIndex]);
+		double itemMeanRating = Utils::getColMean(ratings, colIndex);
+
+		return meanRating + (meanRating - itemMeanRating) + (meanRating - userMeanRating);
 	}
 private:
 	bool useStopWords = false;
@@ -227,17 +234,25 @@ private:
 		return tfidf;
 	}
 
-	vector<double> getNeighbourhood(int index, int colIndex, vector<vector<double>> &ratings, vector<int> &ids) {
-		vector<double> neighbourhood;
+	vector<pair<int, double>> getNeighbourhood(int index, int colIndex, vector<vector<double>> &ratings) {
+		vector<pair<int, double>> similarities;
 		Utils::subtractRawMeanFromVector(ratings[index]);
 		double normA = Utils::normalizeVector(ratings[index]);
-		neighbourhood = this->getSimilarities(ratings, normA, index, colIndex, ids);
+		similarities = this->getSimilarities(ratings, normA, index, colIndex);
 
-		return neighbourhood;
+		struct comparePairs {
+			inline bool operator() (const pair<int, double>& a, const pair<int, double>& b) {
+				return (a.second > b.second);
+			}
+		};
+
+		sort(similarities.begin(), similarities.end(), comparePairs());
+
+		return similarities;
 	}
 
-	vector<double> getSimilarities(vector<vector<double>> &ratings, double normA, int index, int colIndex, vector<int> &ids) {
-		vector<double> similarities;
+	vector<pair<int, double>> getSimilarities(vector<vector<double>> &ratings, double normA, int index, int colIndex) {
+		vector<pair<int, double>> similarities;
 		for (unsigned i = 0; i < ratings.size(); i++) {
 			if (i == index) continue;
 			if (ratings[i][colIndex] == 0) continue;
@@ -246,8 +261,7 @@ private:
 			double normB = Utils::normalizeVector(ratings[i]);
 			double cosineSimilarity = Utils::calculateCosineSimilarity(dotProduct, normA, normB);
 			if (cosineSimilarity < 0) continue;
-			similarities.push_back(cosineSimilarity);
-			ids.push_back(i);
+			similarities.push_back(std::make_pair(i, cosineSimilarity));
 		}
 
 		return similarities;

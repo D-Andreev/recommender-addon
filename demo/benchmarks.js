@@ -25,6 +25,11 @@ var run = bench([
         var predictedRating = recommender.getRatingPrediction(userRatings, 0, 1);
         assert.ok(predictedRating === 5);
         done();
+    },
+    function getGlobalBaselineRatingPrediction(done) {
+        var predictedRating = recommender.getGlobalBaselineRatingPrediction(userRatings, 0, 1);
+        assert.ok(predictedRating === 4.090909090909092);
+        done();
     }
 ], 10);
 

@@ -1,7 +1,7 @@
 # Recommender
-Recommender is a node addon with implementations of [tf-idf](https://en.wikipedia.org/wiki/Tf%E2%80%93idf) and [collaborative filtering](https://en.wikipedia.org/wiki/Collaborative_filtering), which are commonly used in recommendation systems.
+`recommender` is a node addon with utility functions, which can help when building a recommender system. It contains implementations of [`tf-idf`](https://en.wikipedia.org/wiki/Tf%E2%80%93idf), [`Collaborative Filtering`](https://en.wikipedia.org/wiki/Collaborative_filtering) and `Global Baseline Approach` which are commonly used in recommendation systems.
 
-[![NPM](https://nodei.co/npm/recommender.png?downloads=true&downloadRank=true)](https://nodei.co/npm/recommender/) [![NPM](https://nodei.co/npm-dl/recommender.png?months=6&height=3)](https://nodei.co/npm/recommender/)
+[![NPM](https://nodei.co/npm/recommender.png?downloads=true&downloadRank=true)](https://nodei.co/npm/recommender/)
 
 [![Build Status](https://travis-ci.org/D-Andreev/recommender-addon.svg?branch=master)](https://travis-ci.org/D-Andreev/recommender-addon) [![NPM version](https://badge.fury.io/js/badge-list.svg)](https://www.npmjs.com/package/recommender) [![Open Source Love](https://badges.frapsoft.com/os/mit/mit.svg?v=102)](https://github.com/D-Andreev/recommender-addon/blob/master/LICENSE)
 
@@ -106,12 +106,49 @@ var predictedRating = recommender.getRatingPrediction(ratings, movieIndex, userI
 console.log(predictedRating);
 // Output: 2.586406866934817
 ```
+There are pros and cons of using only the collaborative filtering method to predict ratings.
+* Pros
+    * Works for any kind of items (i.e. movies, songs, books etc..). No need for feature selection, you just need a matrix with ratings.
+* Cons
+    * [`Cold start problem`](https://en.wikipedia.org/wiki/Cold_start). At the beginning of your recommendation system no users have rated anything yet, your utility matrix will be empty, so no ratings can be predicted.
+    * `Sparsity`. Most of the times your user/ratings matrix is very sparse. There are many items and many users, but users have only rated several items, so it's hard to find users that have rated the same items.
+    * `First rater problem`. When a new item is added, there are no ratings for it yet, so it can't be recommended to anyone.
+    * `Popularity bias`. Also known as [The Harry Potter Effect.](http://recsyswiki.com/wiki/Harry_Potter_effect) The most popular items are recommended the most. So for example a movie like `Harry Potter` is a very popular item and it is recommended to a lot of people, but it is not that interesting and clouds some of the unique recommendations which could be shown to a user.
+Genrally when building recommender systems, for more exact results it is best to use a [Hybrid recommender system](https://en.wikipedia.org/wiki/Recommender_system#Hybrid_recommender_systems), instead off just using only collaborative filtering or only content based filtering.
+### Global Baseline Approach
+This approach is quite useful when your ratings table is sparse, and there aren't users who rated the same item. Typically with collaborative filtering you would need other users, that rated the same item.
+Consider the following utility matrix with ratings:
+```
+       HP1   HP2   HP3   TW   SW1   SW2   SW3
+   A   4     0     0     1     1     0     0
+   B   5     5     4     0     0     0     0
+   C   0     0     0     2     4     5     0
+   D   3     0     0     0     0     0     3
+```
+`A`, `B`, `C` and `D` are users. `HP1` (Harry Potter 1), `TW` (Twilight), `SW1` (Star Wars 1) are movies. The predicted rating of user `A` for `HP2`, using the global baseline approach is `3.0909090909090913`.
+```js
+var recommender = require('recommender');
+var ratings = [
+    [ 4, 0, 0, 1, 1, 0, 0 ],
+	[ 5, 5, 4, 0, 0, 0, 0 ],
+	[ 0, 0, 0, 2, 4, 5, 0 ],
+	[ 3, 0, 0, 0, 0, 0, 3 ]
+];
+var userIndex = 0;
+var movieIndex = 1;
+// We are predicting the rating of A for HP2.
+var predictedRating = recommender.getGlobalBaselineRatingPrediction(ratings, userIndex, movieIndex);
+console.log(predictedRating);
+// Output: 3.0909090909090913
+```
+
 ### API
 * **[recommender.tfidf(`query`, `documents`, `useStopWords`)](https://github.com/D-Andreev/recommender-addon/blob/2a17c6b0f95023381710854c1544242362cd7868/README.md#recommendertfidfquery-documents-usestopwords)**
 * **[recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendertfidfsearchqueryfilepath-documentsfilepath-usestopwords)**
 * **[recommender.recommend()](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommenderrecommend)**
 * **[recommender.getSortedDocs()](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetsorteddocs)**
 * **[recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetratingpredictionratings-rowindex-colindex)**
+* **[recommender.getGlobalBaselineRatingPrediction(`ratings`, `rowIndex`, `colIndex`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetglobalbaselineratingpredictionratings-rowindex-colindex)**
 
 ##### recommender.tfidf(`query`, `documents`, `useStopWords`)
 ###### Arguments
@@ -172,7 +209,7 @@ var weights = recommender.tfidf(queryFilePath, documentsFilePath, filterStopWord
 ###### Returns
 An array with float point numbers representing the similarities. Every index corresponds to the index of the document in `documents.txt`.
 ```js
-[1, 0.801901630090658, 0, 0.3223967271549685]
+[1, 0.80190163009065796, 0, 0.32239672715496848]
 ```
 ##### recommender.getSortedDocs()
 ###### Returns
@@ -219,6 +256,27 @@ var rowIndex = 0;
 var colIndex = 4;
 var predictedRating = recommender.getRatingPrediction(ratings, rowIndex, colIndex); // 2.586406866934817
 ```
+##### recommender.getGlobalBaselineRatingPrediction(`ratings`, `rowIndex`, `colIndex`)
+###### Arguments
+* `ratings` - A two dimensional array with numbers representing the ratings. *(Required)*
+* `rowIndex` - An integer with the index of the target row for prediction. *(Required)*
+* `colIndex` - An integer with the index of the target column for prediction. *(Required)*
+###### Returns
+A float number with the predicted rating.
+###### Examples
+```js
+var recommender = require('recommender');
+var ratings = [
+    [ 4, 0, 0, 1, 1, 0, 0 ],
+    [ 5, 5, 4, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 2, 4, 5, 0 ],
+    [ 3, 0, 0, 0, 0, 0, 3 ]
+];
+var userIndex = 0;
+var movieIndex = 1;
+var predictedRating = recommender.getGlobalBaselineRatingPrediction(ratings, userIndex, movieIndex);
+// Output: 3.0909090909090913
+```
 ### Run examples and benchmarks
 - Clone the repo.
 - `npm i` in the main folder.
@@ -236,6 +294,9 @@ ratingPrediction*10: 0.095ms
 
 ### Contributing
 Pull requests are welcome.
+
+### Changelog
+For complete changelog [click here](https://github.com/D-Andreev/recommender-addon/blob/master/CHANGELOG.md).
 
 ### License
 MIT License
