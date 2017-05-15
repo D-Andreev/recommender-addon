@@ -115,6 +115,36 @@ NAN_METHOD(GetRatingPrediction) {
 	info.GetReturnValue().Set(result);
 }
 
+NAN_METHOD(GetGlobalBaselineRatingPrediction) {
+	if (!info[0]->IsArray() || !info[1]->IsInt32() || !info[2]->IsInt32()) {
+		Nan::ThrowError("Invalid params");
+	}
+
+	vector<vector<double>> ratings;
+	int rowIndex = info[1]->IntegerValue();
+	int colIndex = info[2]->IntegerValue();
+	Local<Array> array = Local<Array>::Cast(info[0]);
+
+	for (unsigned i = 0; i < array->Length(); i++) {
+		if (Nan::Has(array, i).FromJust()) {
+			vector<double> row;
+			Local<Array> inputRow = Local<Array>::Cast(Nan::Get(array, i).ToLocalChecked());
+			for (unsigned j = 0; j < inputRow->Length(); j++) {
+				if (Nan::Has(inputRow, j).FromJust()) {
+					double value = Nan::Get(inputRow, j).ToLocalChecked()->NumberValue();
+					row.push_back(value);
+				}
+			}
+			ratings.push_back(row);
+		}
+	}
+
+	double predictedRating = r.getGlobalBaselineRatingPrediction(ratings, rowIndex, colIndex);
+	Local<Number> result = Nan::New(predictedRating);
+
+	info.GetReturnValue().Set(result);
+}
+
 NAN_MODULE_INIT(Init) {
 	Nan::Set(target, New<String>("tfidf").ToLocalChecked(),
 		GetFunction(New<FunctionTemplate>(TfIdf)).ToLocalChecked());
@@ -124,5 +154,7 @@ NAN_MODULE_INIT(Init) {
 		GetFunction(New<FunctionTemplate>(GetSortedDocs)).ToLocalChecked());
 	Nan::Set(target, New<String>("getRatingPrediction").ToLocalChecked(),
 		GetFunction(New<FunctionTemplate>(GetRatingPrediction)).ToLocalChecked());
+	Nan::Set(target, New<String>("getGlobalBaselineRatingPrediction").ToLocalChecked(),
+		GetFunction(New<FunctionTemplate>(GetGlobalBaselineRatingPrediction)).ToLocalChecked());
 }
 NODE_MODULE(hello_nan_addon, Init)

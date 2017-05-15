@@ -21,6 +21,7 @@ public:
 	vector<double> recommend();
 	vector<string> getSortedDocuments(vector<double> similarities);
 	double getRatingPrediction(vector<vector<double>> &ratings, int rowIndex, int colIndex);
+	double getGlobalBaselineRatingPrediction(vector<vector<double>> &ratings, int rowIndex, int colIndex);
 private:
 	bool useStopWords;
 	vector<vector<string>> vocabulary;

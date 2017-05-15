@@ -99,7 +99,7 @@ public:
 			double dotProduct = Utils::calculateDotProduct(queryVector, documentVector);
 			double queryNormalized = Utils::normalizeVector(queryVector);
 			double documentNormalized = Utils::normalizeVector(documentVector);
-			double centeredCosineSimilarity = dotProduct / (queryNormalized * documentNormalized);
+			double centeredCosineSimilarity = dotProduct / (sqrt(queryNormalized) * sqrt(documentNormalized));
 			similarities.push_back(centeredCosineSimilarity);
 		}
 
@@ -153,6 +153,14 @@ public:
 
 		double res = ratingsSum / similaritiesSum;
 		return res;
+	}
+
+	double getGlobalBaselineRatingPrediction(vector<vector<double>> &ratings, int rowIndex, int colIndex) {
+		double meanRating = Utils::getMean(ratings);
+		double userMeanRating = Utils::getRowMean(ratings[rowIndex]);
+		double itemMeanRating = Utils::getColMean(ratings, colIndex);
+
+		return meanRating + (meanRating - itemMeanRating) + (meanRating - userMeanRating);
 	}
 private:
 	bool useStopWords = false;

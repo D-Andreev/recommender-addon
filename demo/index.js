@@ -30,7 +30,7 @@ var expectedWeights = {
     javascript: 0.47725887222397817,
     time: 0.2575364144903562
 };
-var expectedRecommendations = [2.5074018466876864, 2.5074018466876864, 0, 1.5671261541798038];
+var expectedRecommendations = [1, 0.801901630090658, 0, 0.3223967271549685];
 var expectedSortedDocs = [
     'get the current date and time in javascript',
     'get the current date and time in python',
@@ -56,7 +56,7 @@ var expectedWeights = {
     javascript: 0.47725887222397817,
     time: 0.2575364144903562
 };
-var expectedRecommendations = [2.5074018466876864, 2.5074018466876864, 0, 1.5671261541798038];
+var expectedRecommendations = [1, 0.801901630090658, 0, 0.3223967271549685];
 var expectedSortedDocs = [
     'get the current date and time in javascript',
     'get the current date and time in python',
@@ -85,3 +85,22 @@ var colIndex = 4;
 var predictedRating = recommender.getRatingPrediction(userRatings, rowIndex, colIndex);
 console.log(predictedRating);
 assert.equal(predictedRating, 2.586406866934817);
+
+// Global baseline rating prediction
+console.log('Global baseline example');
+predictedRating = recommender.getGlobalBaselineRatingPrediction(userRatings, rowIndex, colIndex);
+console.log(predictedRating);
+assert.equal(predictedRating, 2.4142857142857137);
+
+// Global baseline another example
+console.log('Global baseline another example');
+userRatings = [
+    [4, 0, 0, 1, 1, 0, 0],
+	[5, 5, 4, 0, 0, 0, 0],
+	[0, 0, 0, 2, 4, 5, 0],
+	[3, 0, 0, 0, 0, 0, 3]
+];
+rowIndex = 0;
+colIndex = 1;
+var predictedRating = recommender.getGlobalBaselineRatingPrediction(userRatings, rowIndex, colIndex);
+console.log(predictedRating);
