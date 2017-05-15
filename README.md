@@ -125,7 +125,7 @@ Consider the following utility matrix with ratings:
    C   0     0     0     2     4     5     0
    D   3     0     0     0     0     0     3
 ```
-`A`, `B`, `C` and `D` are users. `HP1` (Harry Potter 1), `TW` (Twilight), `SW1` (Star Wars 1) are movies. The predicted rating of user `A` for `HP2`, using the global baseline approach is `3.0909090909090913`, which is a bit lower than the result from collaborative filtering.
+`A`, `B`, `C` and `D` are users. `HP1` (Harry Potter 1), `TW` (Twilight), `SW1` (Star Wars 1) are movies. The predicted rating of user `A` for `HP2`, using the global baseline approach is `3.0909090909090913`. Results using this method tend to give predicted ratings a bit lower than collaborative filtering.
 ```js
 var recommender = require('recommender');
 var ratings = [
