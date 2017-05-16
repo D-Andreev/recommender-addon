@@ -7,7 +7,7 @@
 #include <float.h>
 #include <math.h>
 #include "../include/Constants.h"
-#include "../include/Utils.h";
+#include "../include/Utils.h"
 
 using namespace std;
 
@@ -43,13 +43,13 @@ public:
 
 		this->useStopWords = useStopWords;
 		this->document = this->splitLineToWords(query);
-		for (int i = 0; i < documents.size(); i++) {
+		for (unsigned i = 0; i < documents.size(); i++) {
 			this->rawDocuments.push_back(documents[i]);
 			this->documents.push_back(splitLineToWords(documents[i]));
 		}
 
 		int totalNumberOfTerms = this->document.size();
-		for (int i = 0; i < totalNumberOfTerms; i++) {
+		for (unsigned i = 0; i < totalNumberOfTerms; i++) {
 			string currentTerm = this->document[i];
 			int numberOfTimesTermAppears = this->getNumberOfTimesTermAppears(currentTerm, this->document);
 			double tfidf = this->calculateTfIdf(numberOfTimesTermAppears, totalNumberOfTerms, currentTerm);
@@ -110,7 +110,7 @@ public:
 		vector<string> result;
 		if (similarities.size() == 0) return result;
 
-		vector<int> used;
+		vector<unsigned> used;
 		while (result.size() < similarities.size()) {
 			double max = -DBL_MAX;
 			int maxIndex = 0;
@@ -190,7 +190,7 @@ public:
 			}
 		};
 		sort(recommendations.begin(), recommendations.end(), compareRecommendations());
-		if (limit != -1 && recommendations.size() > limit) {
+		if (limit != -1 && (int)recommendations.size() > limit) {
 			recommendations.erase(recommendations.begin() + limit, recommendations.end());
 		}
 
@@ -289,7 +289,7 @@ private:
 	vector<pair<int, double>> getSimilarities(vector<vector<double>> &ratings, double normA, int index, int colIndex) {
 		vector<pair<int, double>> similarities;
 		for (unsigned i = 0; i < ratings.size(); i++) {
-			if (i == index) continue;
+			if ((int)i == index) continue;
 			if (ratings[i][colIndex] == 0) continue;
 			Utils::subtractRawMeanFromVector(ratings[i]);
 			double dotProduct = Utils::calculateDotProduct(ratings[index], ratings[i]);

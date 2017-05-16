@@ -170,7 +170,7 @@ NAN_METHOD(GetTopCFRecommendations) {
 
 	vector<pair<int, double>> recommendations = r.getTopCFRecommendations(ratings, rowIndex, limit);
 	Local<Array> result = New<v8::Array>();
-	for (int i = 0; i < recommendations.size(); i++) {
+	for (unsigned i = 0; i < recommendations.size(); i++) {
 		Local<Object> obj = Nan::New<Object>();
 		Local<String> itemIdProp = Nan::New<String>("itemId").ToLocalChecked();
 		Local<String> ratingProp = Nan::New<String>("rating").ToLocalChecked();
