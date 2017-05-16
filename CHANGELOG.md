@@ -17,3 +17,6 @@
 
 ## 1.2.0
 - Add global baseline to API.
+
+## 1.3.0
+- Add top collaborative filtering recommendations to API.
