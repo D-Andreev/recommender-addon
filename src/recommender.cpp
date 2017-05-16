@@ -191,7 +191,7 @@ public:
 		};
 		sort(recommendations.begin(), recommendations.end(), compareRecommendations());
 		if (limit != -1 && recommendations.size() > limit) {
-			recommendations.erase(recommendations.begin(), recommendations.begin() + limit);
+			recommendations.erase(recommendations.begin() + limit, recommendations.end());
 		}
 
 		return recommendations;
