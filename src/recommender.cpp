@@ -48,7 +48,7 @@ public:
 			this->documents.push_back(splitLineToWords(documents[i]));
 		}
 
-		int totalNumberOfTerms = this->document.size();
+		unsigned totalNumberOfTerms = this->document.size();
 		for (unsigned i = 0; i < totalNumberOfTerms; i++) {
 			string currentTerm = this->document[i];
 			int numberOfTimesTermAppears = this->getNumberOfTimesTermAppears(currentTerm, this->document);
