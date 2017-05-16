@@ -104,3 +104,17 @@ rowIndex = 0;
 colIndex = 1;
 var predictedRating = recommender.getGlobalBaselineRatingPrediction(userRatings, rowIndex, colIndex);
 console.log(predictedRating);
+
+// Get TOP CF Recommendations
+console.log('Top CF Recommendations');
+var expectedRecommendations = [
+  { itemId: 1, rating: 5 },
+  { itemId: 5, rating: 5 },
+  { itemId: 2, rating: 4 }
+];
+var recommendations = recommender.getTopCFRecommendations(userRatings, 0, 100);
+console.log(recommendations);
+recommendations.forEach((item, index) => {
+    assert.equal(item.itemId, expectedRecommendations[index].itemId);
+    assert.equal(item.rating, expectedRecommendations[index].rating);
+});

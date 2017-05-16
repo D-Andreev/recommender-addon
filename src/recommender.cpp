@@ -161,6 +161,41 @@ public:
 
 		return meanRating + (meanRating - itemMeanRating) + (meanRating - userMeanRating);
 	}
+
+	vector<pair<int, double>> getCFTopRecommendations(vector<vector<double>> &ratings, int rowIndex, int limit) {
+		vector<pair<int, double>> recommendations;
+		vector<vector<double>> originalRatings;
+		for (unsigned i = 0; i < ratings.size(); i++) {
+			originalRatings.push_back(ratings[i]);
+		}
+
+		for (unsigned int i = 0; i < ratings[rowIndex].size(); i++) {
+			if (ratings[rowIndex][i] != 0) continue;
+			double similaritiesSum = 0;
+			double ratingsSum = 0;
+			vector<pair<int, double>> neighbourhood = this->getNeighbourhood(rowIndex, i, ratings);
+			if (!neighbourhood.size()) break;
+			for (unsigned j = 0; j < neighbourhood.size(); j++) {
+				similaritiesSum += neighbourhood[j].second;
+				ratingsSum += originalRatings[neighbourhood[j].first][i] * neighbourhood[j].second;
+			}
+
+			double predictedRating = ratingsSum / similaritiesSum;
+			if (predictedRating > 0) recommendations.push_back(make_pair(i, predictedRating));
+		}
+
+		struct compareRecommendations {
+			inline bool operator() (const pair<int, double>& a, const pair<int, double>& b) {
+				return (a.second > b.second);
+			}
+		};
+		sort(recommendations.begin(), recommendations.end(), compareRecommendations());
+		if (limit != -1 && recommendations.size() > limit) {
+			recommendations.erase(recommendations.begin(), recommendations.begin() + limit);
+		}
+
+		return recommendations;
+	}
 private:
 	bool useStopWords = false;
 
@@ -261,7 +296,7 @@ private:
 			double normB = Utils::normalizeVector(ratings[i]);
 			double cosineSimilarity = Utils::calculateCosineSimilarity(dotProduct, normA, normB);
 			if (cosineSimilarity < 0) continue;
-			similarities.push_back(std::make_pair(i, cosineSimilarity));
+			similarities.push_back(make_pair(i, cosineSimilarity));
 		}
 
 		return similarities;
