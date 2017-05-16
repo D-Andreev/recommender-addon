@@ -168,7 +168,7 @@ NAN_METHOD(GetTopCFRecommendations) {
 		}
 	}
 
-	vector<pair<int, double>> recommendations = r.getCFTopRecommendations(ratings, rowIndex, limit);
+	vector<pair<int, double>> recommendations = r.getTopCFRecommendations(ratings, rowIndex, limit);
 	Local<Array> result = New<v8::Array>();
 	for (int i = 0; i < recommendations.size(); i++) {
 		Local<Object> obj = Nan::New<Object>();

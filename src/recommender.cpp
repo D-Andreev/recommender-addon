@@ -162,7 +162,7 @@ public:
 		return meanRating + (meanRating - itemMeanRating) + (meanRating - userMeanRating);
 	}
 
-	vector<pair<int, double>> getCFTopRecommendations(vector<vector<double>> &ratings, int rowIndex, int limit) {
+	vector<pair<int, double>> getTopCFRecommendations(vector<vector<double>> &ratings, int rowIndex, int limit) {
 		vector<pair<int, double>> recommendations;
 		vector<vector<double>> originalRatings;
 		for (unsigned i = 0; i < ratings.size(); i++) {

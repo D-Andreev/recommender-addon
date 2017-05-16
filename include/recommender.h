@@ -22,7 +22,7 @@ public:
 	vector<string> getSortedDocuments(vector<double> similarities);
 	double getRatingPrediction(vector<vector<double>> &ratings, int rowIndex, int colIndex);
 	double getGlobalBaselineRatingPrediction(vector<vector<double>> &ratings, int rowIndex, int colIndex);
-	vector<pair<int, double>> getCFTopRecommendations(vector<vector<double>> &ratings, int rowIndex, int limit);
+	vector<pair<int, double>> getTopCFRecommendations(vector<vector<double>> &ratings, int rowIndex, int limit);
 private:
 	bool useStopWords;
 	vector<vector<string>> vocabulary;
@@ -33,17 +33,8 @@ private:
 	int getNumberOfTimesTermAppears(const string& term, vector<string> document) const;
 	int getNumberOfDocumentsWithTerm(string& termt) const;
 	double calculateTfIdf(int numberOfTimesTermAppears, int totalNumberOfTerms, string currentTerm) const;
-	vector<double> getNeighbourhood(
-		int index,
-		int colIndex,
-		vector<vector<double>> &ratings,
-		vector<int> &ids);
-	vector<double> getSimilarities(
-		vector<vector<double>> &ratings,
-		double normA,
-		int index,
-		int colIndex,
-		vector<int> &indecies);
+	vector<pair<int, double>> getNeighbourhood(int index, int colIndex, vector<vector<double>> &ratings);
+	vector<pair<int, double>> getSimilarities(vector<vector<double>> &ratings, double normA, int index, int colIndex);
 };
 
 #endif
