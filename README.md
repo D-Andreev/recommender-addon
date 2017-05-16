@@ -141,7 +141,6 @@ var predictedRating = recommender.getGlobalBaselineRatingPrediction(ratings, use
 console.log(predictedRating);
 // Output: 3.0909090909090913
 ```
-
 ### API
 * **[recommender.tfidf(`query`, `documents`, `useStopWords`)](https://github.com/D-Andreev/recommender-addon/blob/2a17c6b0f95023381710854c1544242362cd7868/README.md#recommendertfidfquery-documents-usestopwords)**
 * **[recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendertfidfsearchqueryfilepath-documentsfilepath-usestopwords)**
@@ -149,6 +148,7 @@ console.log(predictedRating);
 * **[recommender.getSortedDocs()](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetsorteddocs)**
 * **[recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetratingpredictionratings-rowindex-colindex)**
 * **[recommender.getGlobalBaselineRatingPrediction(`ratings`, `rowIndex`, `colIndex`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetglobalbaselineratingpredictionratings-rowindex-colindex)**
+* **[recommender.getTopCFRecommendations(`ratings`, `rowIndex`, `limit`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergettopcfrecommendationsratings-rowindex-limit)**
 
 ##### recommender.tfidf(`query`, `documents`, `useStopWords`)
 ###### Arguments
@@ -276,6 +276,33 @@ var userIndex = 0;
 var movieIndex = 1;
 var predictedRating = recommender.getGlobalBaselineRatingPrediction(ratings, userIndex, movieIndex);
 // Output: 3.0909090909090913
+```
+##### recommender.getTopCFRecommendations(`ratings`, `rowIndex`, `limit`)
+###### Arguments
+* `ratings` - A two dimensional array with numbers representing the ratings. *(Required)*
+* `rowIndex` - An integer with the index of the target row for prediction. *(Required)*
+* `limit` - An integer with the max number of recommendations to be returned. *(Required)*
+###### Returns
+An array of objects. Each object contains the item id and the predicted rating. The array is sorted by rating.
+###### Examples
+```js
+var recommender = require('recommender');
+var ratings = [
+    [ 4, 0, 0, 1, 1, 0, 0 ],
+    [ 5, 5, 4, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 2, 4, 5, 0 ],
+    [ 3, 0, 0, 0, 0, 0, 3 ]
+];
+// We are getting the top recommendations for the first user.
+var recommendations = recommender.getTopCFRecommendations(ratings, 0, 100);
+console.log(recommendations);
+/*
+[
+  { itemId: 1, rating: 5 },
+  { itemId: 5, rating: 5 },
+  { itemId: 2, rating: 4 }
+]
+*/
 ```
 ### Run examples and benchmarks
 - Clone the repo.

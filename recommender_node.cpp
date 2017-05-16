@@ -1,7 +1,5 @@
 #include <nan.h>
 #include "src/recommender.cpp"
-#include <iostream>
-#include <fstream>
 
 using namespace Nan;
 using namespace v8;
@@ -145,6 +143,45 @@ NAN_METHOD(GetGlobalBaselineRatingPrediction) {
 	info.GetReturnValue().Set(result);
 }
 
+NAN_METHOD(GetTopCFRecommendations) {
+	if (!info[0]->IsArray() || !info[1]->IsInt32()) {
+		Nan::ThrowError("Invalid params");
+	}
+
+	vector<vector<double>> ratings;
+	int rowIndex = info[1]->IntegerValue();
+	int limit = -1;
+	if (info[2]->IntegerValue()) limit = info[2]->IntegerValue();
+	Local<Array> array = Local<Array>::Cast(info[0]);
+
+	for (unsigned i = 0; i < array->Length(); i++) {
+		if (Nan::Has(array, i).FromJust()) {
+			vector<double> row;
+			Local<Array> inputRow = Local<Array>::Cast(Nan::Get(array, i).ToLocalChecked());
+			for (unsigned j = 0; j < inputRow->Length(); j++) {
+				if (Nan::Has(inputRow, j).FromJust()) {
+					double value = Nan::Get(inputRow, j).ToLocalChecked()->NumberValue();
+					row.push_back(value);
+				}
+			}
+			ratings.push_back(row);
+		}
+	}
+
+	vector<pair<int, double>> recommendations = r.getTopCFRecommendations(ratings, rowIndex, limit);
+	Local<Array> result = New<v8::Array>();
+	for (unsigned i = 0; i < recommendations.size(); i++) {
+		Local<Object> obj = Nan::New<Object>();
+		Local<String> itemIdProp = Nan::New<String>("itemId").ToLocalChecked();
+		Local<String> ratingProp = Nan::New<String>("rating").ToLocalChecked();
+		obj->Set(itemIdProp, Nan::New<Number>(recommendations[i].first));
+		obj->Set(ratingProp, Nan::New<Number>(recommendations[i].second));
+
+		Nan::Set(result, i, obj);
+	}
+	info.GetReturnValue().Set(result);
+}
+
 NAN_MODULE_INIT(Init) {
 	Nan::Set(target, New<String>("tfidf").ToLocalChecked(),
 		GetFunction(New<FunctionTemplate>(TfIdf)).ToLocalChecked());
@@ -156,5 +193,7 @@ NAN_MODULE_INIT(Init) {
 		GetFunction(New<FunctionTemplate>(GetRatingPrediction)).ToLocalChecked());
 	Nan::Set(target, New<String>("getGlobalBaselineRatingPrediction").ToLocalChecked(),
 		GetFunction(New<FunctionTemplate>(GetGlobalBaselineRatingPrediction)).ToLocalChecked());
+	Nan::Set(target, New<String>("getTopCFRecommendations").ToLocalChecked(),
+		GetFunction(New<FunctionTemplate>(GetTopCFRecommendations)).ToLocalChecked());
 }
 NODE_MODULE(hello_nan_addon, Init)
