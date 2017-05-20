@@ -152,7 +152,7 @@ double Recommender::getGlobalBaselineRatingPrediction(vector<vector<double>> &ra
 	double userMeanRating = Utils::getRowMean(ratings[rowIndex]);
 	double itemMeanRating = Utils::getColMean(ratings, colIndex);
 
-	return abs(meanRating + (itemMeanRating - meanRating) + (userMeanRating - meanRating));
+	return fabs(meanRating + (itemMeanRating - meanRating) + (userMeanRating - meanRating));
 }
 
 vector<pair<int, double>> Recommender::getTopCFRecommendations(vector<vector<double>> &ratings, int rowIndex, int limit) {
