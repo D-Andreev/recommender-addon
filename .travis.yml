@@ -15,7 +15,6 @@ before_install:
 - sudo update-alternatives --set gcc /usr/bin/gcc-5
 
 script:
-- npm test
 - cd ./demo
 - npm i
 - node benchmarks.js

@@ -3,9 +3,7 @@
   "version": "1.4.2",
   "description": "A node native addon with recommentaion utils",
   "main": "./build/Release/recommender",
-  "scripts": {
-    "pretest": "cd ./demo && npm i"
-  },
+  "scripts": {},
   "gypfile": true,
   "author": "Dimitar Andreev <d.andreev90@gmail.com>",
   "license": "MIT",
