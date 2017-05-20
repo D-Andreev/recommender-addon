@@ -18,5 +18,5 @@ script:
 - npm test
 - cd ./demo
 - npm i
-- node index.js
 - node benchmarks.js
+- node index.js

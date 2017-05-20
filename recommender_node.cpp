@@ -164,10 +164,12 @@ NAN_METHOD(GetRatingPrediction) {
 		}
 	}
 	if (info[3]->IsFunction()) {
+		// Async
 		Callback *callback = new Callback(info[3].As<Function>());
 		AsyncQueueWorker(new CollaborativeFilteringWorker(callback, ratings, rowIndex, colIndex));
 	}
 	else {
+		// Sync
 		double predictedRating = r.getRatingPrediction(ratings, rowIndex, colIndex);
 		Local<Number> result = Nan::New(predictedRating);
 		info.GetReturnValue().Set(result);
@@ -199,14 +201,16 @@ NAN_METHOD(GetGlobalBaselineRatingPrediction) {
 	}
 
 	if (info[3]->IsFunction()) {
+		// Async
 		Callback *callback = new Callback(info[3].As<Function>());
 		AsyncQueueWorker(new GlobalBaselineWorker(callback, ratings, rowIndex, colIndex));
 	}
 	else {
+		// Sync
 		double predictedRating = r.getGlobalBaselineRatingPrediction(ratings, rowIndex, colIndex);
-	Local<Number> result = Nan::New(predictedRating);
+		Local<Number> result = Nan::New(predictedRating);
 
-	info.GetReturnValue().Set(result);
+		info.GetReturnValue().Set(result);
 	}
 }
 
@@ -236,10 +240,12 @@ NAN_METHOD(GetTopCFRecommendations) {
 	}
 
 	if (info[3]->IsFunction()) {
+		// Async
 		Callback *callback = new Callback(info[3].As<Function>());
 		AsyncQueueWorker(new TopCFRecommendationsWorker(callback, ratings, rowIndex, limit));
 	}
 	else {
+		// Sync
 		vector<pair<int, double>> recommendations = r.getTopCFRecommendations(ratings, rowIndex, limit);
 		Local<Array> result = New<v8::Array>();
 		for (unsigned i = 0; i < recommendations.size(); i++) {
