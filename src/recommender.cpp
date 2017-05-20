@@ -13,7 +13,7 @@
 
 using namespace std;
 
-void Recommender::tfidf(string documentFilePath, string documentsFilePath, bool useStopWords) {
+map<string, double> Recommender::tfidf(string documentFilePath, string documentsFilePath, bool useStopWords) {
 	map<string, double> result;
 
 	this->useStopWords = useStopWords;
@@ -29,9 +29,10 @@ void Recommender::tfidf(string documentFilePath, string documentsFilePath, bool 
 	}
 
 	this->weights = result;
+	return result;
 }
 
-void Recommender::tfidf(string query, vector<string> documents, bool useStopWords) {
+map<string, double> Recommender::tfidf(string query, vector<string> documents, bool useStopWords) {
 	map<string, double> result;
 
 	this->useStopWords = useStopWords;
@@ -50,6 +51,7 @@ void Recommender::tfidf(string query, vector<string> documents, bool useStopWord
 	}
 
 	this->weights = result;
+	return result;
 }
 
 vector<double> Recommender::recommend(map<string, double> weights) {

@@ -35,19 +35,15 @@ var documents = [
     'something very different',
     'what is the time now'
 ];
-recommender.tfidf(query, documents, (weights) => {
-    recommender.recommend(weights, (recommendations) => {
-        recommender.getSortedDocs(recommendations, (sortedDocs) => {
-            console.log(sortedDocs);
-            // Output:
-            /**
-                get the current date and time in javascript
-                get the current date and time in python
-            	what is the time now
-                something very different
-            */     
-        });
-    });
+recommender.tfidf(query, documents, (sortedDocs) => {
+    console.log(sortedDocs);
+    // Output:
+    /**
+        get the current date and time in javascript
+        get the current date and time in python
+    	what is the time now
+        something very different
+    */     
 });
 ```
 The `tfidf` method also accepts paths to the files where our query and documents are. We can create a text file for the query - `search_query.txt` with content:
@@ -67,26 +63,22 @@ var recommender = require('recommender');
 var queryPath = './search_query.txt';
 var documentsPath = './documents.txt';
 
-recommender.tfidf(queryPath, documentsPath, (weights) => {
-    recommender.recommend(weights, (recommendations) => {
-        recommender.getSortedDocs(recommendations, (sortedDocs) => {
-            console.log(sortedDocs);
-            // Output:
-            /**
-                get the current date and time in javascript
-                get the current date and time in python
-            	what is the time now
-                something very different
-            */     
-        });
-    });
+recommender.tfidf(queryPath, documentsPath, (sortedDocs) => {
+    console.log(sortedDocs);
+    // Output:
+    /**
+        get the current date and time in javascript
+        get the current date and time in python
+    	what is the time now
+        something very different
+    */   
 });
 ```
 
 We can also pass `filterStopWords` which is optional and `false` by default. If `filterStopWords` is `true` those words will be filtered out and not considered when calculating similarity. Stop-words are those words that appear very commonly across the documents, therefore loosing their representativeness and don't contribute to the meaning of the text. i.e (`a`, `about`, `the`, `if`, `it`, `is`...). The full stop words list can be viewed [here](https://github.com/D-Andreev/recommender-addon/blob/master/include/Constants.h#L8).
 ```js
 bool filterStopWords = true;
-var weights = recommender.tfidf(queryPath, documentsPath, filterStopWords, calback);
+var sortedDocs = recommender.tfidf(queryPath, documentsPath, filterStopWords, calback);
 ```
 
 ### Collaborative filtering
@@ -156,8 +148,6 @@ var predictedRating = recommender.getGlobalBaselineRatingPrediction(ratings, use
 ### API
 * **[recommender.tfidf(`query`, `documents`, `useStopWords`, [`callback`])](#tfidf-arrays)**
 * **[recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`, [`callback`])](#tfidf-files)**
-* **[recommender.recommend(`weights`, [`callback`])](#rec)**
-* **[recommender.getSortedDocs(recommendations, [`callback`])](#get-sorted-docs)**
 * **[recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])](#get-r-p)**
 * **[recommender.getGlobalBaselineRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])](#get-g-b)**
 * **[recommender.getTopCFRecommendations(`ratings`, `rowIndex`, `limit`, [`callback`])](#get-top-cf)**
@@ -167,76 +157,6 @@ var predictedRating = recommender.getGlobalBaselineRatingPrediction(ratings, use
 * `query` - A string with the query. *(Required)*
 * `documents` - An array of strings with the documents. *(Required)*
 * `filterStopWords` - A boolean to filter out the stop words or not. *(Optional)* *(Default: `false`)*
-* `callback` - A function with callback. *(Optional)*
-###### Returns
-An object with each of the terms in the search query as keys and a float number with the weight of the term.
-```js
-{
-    current: 0.3386294361119891,
-    date: 0.3386294361119891,
-    get: 0.3386294361119891,
-    javascript: 0.47725887222397817,
-    time: 0.2575364144903562
-}
-```
-###### Examples
-```js
-var recommender = require('recommender');
-
-var query = "get current date time javascript";
-var documents = [
-    'get the current date and time in javascript',
-    'get the current date and time in python',
-    'something very different',
-    'what is the time now'
-];
-bool filterStopWords = true;
-recommender.tfidf(query, documents, filterStopWords, (weights) => {
-    // use weights here....
-});
-```
-<a name="tfidf-files"></a>
-##### recommender.tfidf(`queryFilePath`, `documentsFilePath`, `useStopWords`, [`callback`])
-###### Arguments
-* `queryFilePath` - A string with the file path to the search query text file. *(Required)*
-* `documentsFilePath` - A string with the file path to the documents text file. *(Required)*
-* `filterStopWords` - A boolean to filter out the stop words or not. *(Optional)* *(Default: `false`)*
-* `callback` - A function with callback. *(Optional)*
-###### Returns
-An object with each of the terms in the search query as keys and a float number with the weight of the term.
-```js
-{
-    current: 0.3386294361119891,
-    date: 0.3386294361119891,
-    get: 0.3386294361119891,
-    javascript: 0.47725887222397817,
-    time: 0.2575364144903562
-}
-```
-###### Examples
-```js
-var recommender = require('recommender');
-
-var queryFilePath = './search_query.txt';
-var documentsFilePath = './documents.txt';
-bool filterStopWords = true;
-var weights = recommender.tfidf(queryFilePath, documentsFilePath, filterStopWords, (weights) => {
-    // use weights here...
-});
-```
-<a name="rec"></a>
-##### recommender.recommend(weights, [`callback`])
-###### Arguments
-* `callback` - A function with callback. *(Optional)*
-###### Returns
-An array with float point numbers representing the similarities. Every index corresponds to the index of the document in `documents.txt`.
-```js
-[1, 0.80190163009065796, 0, 0.32239672715496848]
-```
-<a name="get-sorted-docs"></a>
-##### recommender.getSortedDocs(recommendations, [`callback`])
-###### Arguments
-* `similarities` - An arrray with the similarities. It is the result from recommender.recommend(weights). *(Required)*
 * `callback` - A function with callback. *(Optional)*
 ###### Returns
 An array of strings with the sorted by similarity documents.
@@ -252,15 +172,44 @@ An array of strings with the sorted by similarity documents.
 ```js
 var recommender = require('recommender');
 
-var searchQueryPath = "./search_query.txt";
-var documentsPath = "./documents.txt";
+var query = "get current date time javascript";
+var documents = [
+    'get the current date and time in javascript',
+    'get the current date and time in python',
+    'something very different',
+    'what is the time now'
+];
+bool filterStopWords = true;
+recommender.tfidf(query, documents, filterStopWords, (sortedDocs) => {
+    // use sorted docs here....
+});
+```
+<a name="tfidf-files"></a>
+##### recommender.tfidf(`queryFilePath`, `documentsFilePath`, `useStopWords`, [`callback`])
+###### Arguments
+* `queryFilePath` - A string with the file path to the search query text file. *(Required)*
+* `documentsFilePath` - A string with the file path to the documents text file. *(Required)*
+* `filterStopWords` - A boolean to filter out the stop words or not. *(Optional)* *(Default: `false`)*
+* `callback` - A function with callback. *(Optional)*
+###### Returns
+An array of strings with the sorted by similarity documents.
+```js
+[
+    'get the current date and time in javascript',
+    'get the current date and time in python',
+    'what is the time now',
+    'something very different'
+]
+```
+###### Examples
+```js
+var recommender = require('recommender');
 
-recommender.tfidf(queryPath, documentsPath, (weights) => {
-    recommender.recommend(weights, (recommendations) => {
-        recommender.getSortedDocs(recommendations, (sortedDocs) => {
-            console.log(sortedDocs);  
-        });
-    });
+var queryFilePath = './search_query.txt';
+var documentsFilePath = './documents.txt';
+bool filterStopWords = true;
+var weights = recommender.tfidf(queryFilePath, documentsFilePath, filterStopWords, (sortedDocs) => {
+    // use sorted docs here...
 });
 ```
 <a name="get-r-p"></a>
