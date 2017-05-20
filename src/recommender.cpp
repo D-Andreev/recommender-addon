@@ -6,6 +6,7 @@
 #include <map>
 #include <float.h>
 #include <math.h>
+#include <stdlib.h>
 #include "../include/recommender.h"
 #include "../include/Constants.h"
 #include "../include/Utils.h"
