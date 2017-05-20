@@ -16,21 +16,8 @@ var documents = [
     'what is the time now'
 ];
 
-var weights = recommender.tfidf(query, documents);
-console.log(weights);
-var recommendations = recommender.recommend(weights);
-console.log(recommendations);
-var sortedDocs = recommender.getSortedDocs(recommendations);
+var sortedDocs = recommender.tfidf(query, documents);
 console.log(sortedDocs);
-
-var expectedWeights = {
-    current: 0.3386294361119891,
-    date: 0.3386294361119891,
-    get: 0.3386294361119891,
-    javascript: 0.47725887222397817,
-    time: 0.2575364144903562
-};
-var expectedRecommendations = [1, 0.801901630090658, 0, 0.3223967271549685];
 var expectedSortedDocs = [
     'get the current date and time in javascript',
     'get the current date and time in python',
@@ -39,25 +26,13 @@ var expectedSortedDocs = [
 ];
 console.log(sortedDocs);
 
-assert.deepEqual(weights, expectedWeights);
-assert.deepEqual(recommendations, expectedRecommendations);
 assert.deepEqual(sortedDocs, expectedSortedDocs);
 
 // TF-IDF with files input
 console.log('TF-IDF with files input');
-var weights = recommender.tfidf(documentPath, documentsPath);
-var recommendations = recommender.recommend(weights);
-var sortedDocs = recommender.getSortedDocs(recommendations);
-
-var expectedWeights = {
-    current: 0.3386294361119891,
-    date: 0.3386294361119891,
-    get: 0.3386294361119891,
-    javascript: 0.47725887222397817,
-    time: 0.2575364144903562
-};
-var expectedRecommendations = [1, 0.801901630090658, 0, 0.3223967271549685];
-var expectedSortedDocs = [
+sortedDocs = recommender.tfidf(documentPath, documentsPath);
+console.log(sortedDocs);
+expectedSortedDocs = [
     'get the current date and time in javascript',
     'get the current date and time in python',
     'what is the time now',
@@ -65,8 +40,6 @@ var expectedSortedDocs = [
 ];
 console.log(sortedDocs);
 
-assert.deepEqual(weights, expectedWeights);
-assert.deepEqual(recommendations, expectedRecommendations);
 assert.deepEqual(sortedDocs, expectedSortedDocs);
 
 // Colaborative filtering example
@@ -202,7 +175,7 @@ recommender.getTopCFRecommendations(userRatings, 0, 100, (res) => {
 console.log('TF-IDF with files input async');
 recommender.tfidf(documentPath, documentsPath, (res) => {
     console.log('TF-IDF with files input async result', res);
-    assert.deepEqual(res, expectedWeights);
+    assert.deepEqual(res, expectedSortedDocs);
 });
 
 // TF-IDF with string and array params async
@@ -217,14 +190,15 @@ var documents = [
 
 recommender.tfidf(query, documents, (res) => {
     console.log('TF-IDF with string and array params async result', res);
-    assert.deepEqual(res, expectedWeights);
+    console.log('expected', expectedSortedDocs); process.exit();
+    assert.deepEqual(res, expectedSortedDocs);
 });
 
 // TF-IDF with files input async
 console.log('TF-IDF with files input async');
 recommender.tfidf(documentPath, documentsPath, (res) => {
     console.log('TF-IDF with files input async result', res);
-    assert.deepEqual(res, expectedWeights);
+    assert.deepEqual(res, expectedSortedDocs);
 });
 
 // TF-IDF with string and array params and stop words async
@@ -239,41 +213,26 @@ var documents = [
 
 recommender.tfidf(query, documents, false, (res) => {
     console.log('TF-IDF with string and array params async and stopWords  result', res);
-    assert.deepEqual(res, expectedWeights);
+    assert.deepEqual(res, expectedSortedDocs);
 });
 
 // TF-IDF with files input and stopWords async
 console.log('TF-IDF with files input and stopWords async');
 recommender.tfidf(documentPath, documentsPath, false, (res) => {
     console.log('TF-IDF with files input and stopWords async result', res);
-    assert.deepEqual(res, expectedWeights);
+    assert.deepEqual(res, expectedSortedDocs);
 });
 
 // TF-IDF recommend async
 console.log('TF-IDF recommend async');
 recommender.tfidf(documentPath, documentsPath, false, (res) => {
     console.log('TF-IDF with files input and stopWords async result', res);
-    assert.deepEqual(res, expectedWeights);
-    recommender.tfidf(documentPath, documentsPath, false, (res) => {
-        console.log('TF-IDF recommend async result', res);
-        assert.deepEqual(res, expectedWeights);
-    });
+    assert.deepEqual(res, expectedSortedDocs);
 });
 
 // TF-IDF getSortedDocs async
 console.log('TF-IDF getSortedDocs async');
 recommender.tfidf(documentPath, documentsPath, false, (weights) => {
     console.log('TF-IDF with files input and stopWords async result', weights);
-    assert.deepEqual(weights, expectedWeights);
-    recommender.recommend(weights, (recommendations) => {
-        console.log('TF-IDF recommend async result', recommendations);
-        assert.deepEqual(recommendations, expectedRecommendations);
-        recommender.getSortedDocs(recommendations, (sortedDocumentsResult) => {
-            console.log('TF-IDF getSortedDocs async result', sortedDocumentsResult);
-            assert.deepEqual(sortedDocumentsResult, expectedSortedDocs);
-
-            // EXIT
-            process.exit();
-        });
-    });
+    assert.deepEqual(weights, expectedSortedDocs);
 });*/

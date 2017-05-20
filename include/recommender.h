@@ -18,8 +18,8 @@ public:
 
 	Recommender() {};
 
-	void tfidf(string documentFilePath, string documentsFilePat, bool useStopWords);
-	void tfidf(string query, vector<string> documents, bool useStopWords);
+	map<string, double> tfidf(string documentFilePath, string documentsFilePat, bool useStopWords);
+	map<string, double> tfidf(string query, vector<string> documents, bool useStopWords);
 	vector<double> recommend(map<string, double> weights);
 	vector<string> getSortedDocuments(vector<double> similarities);
 	double getRatingPrediction(vector<vector<double>> &ratings, int rowIndex, int colIndex);

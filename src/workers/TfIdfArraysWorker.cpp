@@ -16,17 +16,19 @@ public:
 
 	void Execute() {
 		this->recommender.tfidf(this->query, this->documents, this->useStopWords);
-		this->result = this->recommender.weights;
+		vector<double> recs = this->recommender.recommend(this->recommender.weights);
+		vector<string> sortedDocuments = this->recommender.getSortedDocuments(recs);
+		this->result = sortedDocuments;
 	}
 
 	void HandleOKCallback() {
-		Local<Object> obj = Nan::New<Object>();
-		for (auto const &ent1 : this->result) {
-			Local<String> prop = Nan::New<String>(ent1.first).ToLocalChecked();
-			Nan::Set(obj, prop, Nan::New<Number>(ent1.second));
+		int sortedDocumentsSize = this->result.size();
+		Local<Array> result = New<v8::Array>(sortedDocumentsSize);
+		for (int i = 0; i < sortedDocumentsSize; i++) {
+			Nan::Set(result, i, Nan::New<String>(this->result[i].c_str()).ToLocalChecked());
 		}
 
-		Local<Value> argv[] = { obj };
+		Local<Value> argv[] = { result };
 		callback->Call(1, argv);
 	}
 
@@ -35,5 +37,5 @@ private:
 	string query;
 	vector<string> documents;
 	bool useStopWords;
-	map<string, double> result;
+	vector<string> result;
 };
