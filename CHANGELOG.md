@@ -33,3 +33,6 @@
 
 ## 1.4.2
 - Fix recommend function.
+
+## 2.0.0
+- Deprecate `recommend` and `getSortedDocs` and use only `tfidf`
