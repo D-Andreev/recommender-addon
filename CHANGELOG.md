@@ -24,3 +24,6 @@
 ## 1.3.1
 - Fix Recommender header file.
 - Don't return NaN for GlobalBaseline
+
+## 1.4.0
+- Add async variants of all methods.

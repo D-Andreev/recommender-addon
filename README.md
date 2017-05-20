@@ -1,19 +1,25 @@
-# Recommender
+Recommender
+===============================
+
 `recommender` is a node addon with utility functions, which can help when building a recommender system. It contains implementations of [`tf-idf`](https://en.wikipedia.org/wiki/Tf%E2%80%93idf), [`Collaborative Filtering`](https://en.wikipedia.org/wiki/Collaborative_filtering) and `Global Baseline Approach` which are commonly used in recommendation systems. Each of the API methods have a **sync** and an **async** variation. **Using the async methods is highly recommended**, because they work in new threads and do not block the event loop. 
 
 [![NPM](https://nodei.co/npm/recommender.png?downloads=true&downloadRank=true)](https://nodei.co/npm/recommender/)
 
 [![Build Status](https://travis-ci.org/D-Andreev/recommender-addon.svg?branch=master)](https://travis-ci.org/D-Andreev/recommender-addon) [![NPM version](https://badge.fury.io/js/badge-list.svg)](https://www.npmjs.com/package/recommender) [![Open Source Love](https://badges.frapsoft.com/os/mit/mit.svg?v=102)](https://github.com/D-Andreev/recommender-addon/blob/master/LICENSE)
 
- * **[Installation](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#installation)**
- * **[Usage](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#usage)**
- * **[API](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#api)**
- * **[Run examples and benchmarks](https://github.com/D-Andreev/recommender-addon/blob/28ba4c3f5fdb3b66215b6f3420d568c592e8c9a3/README.md#run-examples-and-benchmarks)**
- * **[Contributing](https://github.com/D-Andreev/recommender-addon/blob/28ba4c3f5fdb3b66215b6f3420d568c592e8c9a3/README.md#contributing)**
- * **[License](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#license)**
+ * **[Installation](#Installation)**
+ * **[Usage](#Usage)**
+ * **[API](#API)**
+ * **[Run examples and benchmarks](#Run-examples)**
+ * **[Changelog](#Changelog)**
+ * **[Contributing](#Contributing)**
+ * **[License](#License)**
 
-## Installation
+<a name="Installation"></a>
+# Installation
  - `npm i recommender`
+
+<a name="Usage"></a>
 
 ## Usage
 
@@ -118,6 +124,7 @@ There are pros and cons of using only the collaborative filtering method to pred
     * `First rater problem`. When a new item is added, there are no ratings for it yet, so it can't be recommended to anyone.
     * `Popularity bias`. Also known as [The Harry Potter Effect.](http://recsyswiki.com/wiki/Harry_Potter_effect) The most popular items are recommended the most. So for example a movie like `Harry Potter` is a very popular item and it is recommended to a lot of people, but it is not that interesting and clouds some of the unique recommendations which could be shown to a user.
 Genrally when building recommender systems, for more exact results it is best to use a [Hybrid recommender system](https://en.wikipedia.org/wiki/Recommender_system#Hybrid_recommender_systems), instead off just using only collaborative filtering or only content based filtering.
+
 ### Global Baseline Approach
 This approach is quite useful when your ratings table is sparse, and there aren't users who rated the same item. Typically with collaborative filtering you would need other users, that rated the same item.
 Consider the following utility matrix with ratings:
@@ -145,15 +152,16 @@ var predictedRating = recommender.getGlobalBaselineRatingPrediction(ratings, use
 // Output: 3.6363636363636362
 });
 ```
+<a name="API"></a>
 ### API
-* **[recommender.tfidf(`query`, `documents`, `useStopWords`, [`callback`])](https://github.com/D-Andreev/recommender-addon/blob/2a17c6b0f95023381710854c1544242362cd7868/README.md#recommendertfidfquery-documents-usestopwords)**
-* **[recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`, [`callback`])](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendertfidfsearchqueryfilepath-documentsfilepath-usestopwords)**
-* **[recommender.recommend([`callback`])](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommenderrecommend)**
-* **[recommender.getSortedDocs(recommendations, [`callback`])](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetsorteddocs-recommendations)**
-* **[recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetratingpredictionratings-rowindex-colindex)**
-* **[recommender.getGlobalBaselineRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetglobalbaselineratingpredictionratings-rowindex-colindex)**
-* **[recommender.getTopCFRecommendations(`ratings`, `rowIndex`, `limit`, [`callback`])](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergettopcfrecommendationsratings-rowindex-limit)**
-
+* **[recommender.tfidf(`query`, `documents`, `useStopWords`, [`callback`])](#tfidf-arrays)**
+* **[recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`, [`callback`])](#tfidf-files)**
+* **[recommender.recommend([`callback`])](#rec)**
+* **[recommender.getSortedDocs(recommendations, [`callback`])](#get-sorted-docs)**
+* **[recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])](#get-r-p)**
+* **[recommender.getGlobalBaselineRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])](#get-g-b)**
+* **[recommender.getTopCFRecommendations(`ratings`, `rowIndex`, `limit`, [`callback`])](#get-top-cf)**
+<a name="tfidf-arrays"></a>
 ##### recommender.tfidf(`query`, `documents`, `useStopWords`, [`callback`])
 ###### Arguments
 * `query` - A string with the query. *(Required)*
@@ -187,6 +195,7 @@ recommender.tfidf(query, documents, filterStopWords, (weights) => {
     // use weights here....
 });
 ```
+<a name="tfidf-files"></a>
 ##### recommender.tfidf(`queryFilePath`, `documentsFilePath`, `useStopWords`, [`callback`])
 ###### Arguments
 * `queryFilePath` - A string with the file path to the search query text file. *(Required)*
@@ -215,6 +224,7 @@ var weights = recommender.tfidf(queryFilePath, documentsFilePath, filterStopWord
     // use weights here...
 });
 ```
+<a name="rec"></a>
 ##### recommender.recommend([`callback`])
 ###### Arguments
 * `callback` - A function with callback. *(Optional)*
@@ -223,6 +233,7 @@ An array with float point numbers representing the similarities. Every index cor
 ```js
 [1, 0.80190163009065796, 0, 0.32239672715496848]
 ```
+<a name="get-sorted-docs"></a>
 ##### recommender.getSortedDocs(recommendations, [`callback`])
 ###### Arguments
 * `similarities` - An arrray with the similarities. It is the result from recommender.recommend(). *(Required)*
@@ -252,6 +263,7 @@ recommender.tfidf(queryPath, documentsPath, (weights) => {
     });
 });
 ```
+<a name="get-r-p"></a>
 ##### recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])
 ###### Arguments
 * `ratings` - A two dimensional array with numbers representing the ratings. *(Required)*
@@ -278,6 +290,7 @@ recommender.getRatingPrediction(ratings, rowIndex, colIndex, (predictedRating) =
     // predictedRating is 2.586406866934817
 });
 ```
+<a name="get-g-b"></a>
 ##### recommender.getGlobalBaselineRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])
 ###### Arguments
 * `ratings` - A two dimensional array with numbers representing the ratings. *(Required)*
@@ -301,6 +314,7 @@ recommender.getGlobalBaselineRatingPrediction(ratings, userIndex, movieIndex, (p
     // predictedRating is 3.6363636363636362
 });
 ```
+<a name="get-top-cf"></a>
 ##### recommender.getTopCFRecommendations(`ratings`, `rowIndex`, `limit`, [`callback`])
 ###### Arguments
 * `ratings` - A two dimensional array with numbers representing the ratings. *(Required)*
