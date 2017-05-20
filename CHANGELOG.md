@@ -27,3 +27,6 @@
 
 ## 1.4.0
 - Add async variants of all methods.
+
+## 1.4.1
+- Pass recommender instance to workers.
