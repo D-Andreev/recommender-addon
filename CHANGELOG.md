@@ -20,3 +20,7 @@
 
 ## 1.3.0
 - Add top collaborative filtering recommendations to API.
+
+## 1.3.1
+- Fix Recommender header file.
+- Don't return NaN for GlobalBaseline
