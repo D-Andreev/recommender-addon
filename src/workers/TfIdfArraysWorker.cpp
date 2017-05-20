@@ -1,22 +1,22 @@
 #include "nan.h"
-#include "../include/recommender.h"
+#include "../../include/recommender.h"
 
 using namespace std;
 using namespace Nan;
 using namespace v8;
 
-class TfIdfFilesWorker : public AsyncWorker {
+class TfIdfArraysWorker : public AsyncWorker {
 public:
-	TfIdfFilesWorker(Callback * callback, string documentFilePath, string documentsFilePath, bool useStopWords) :
+	TfIdfArraysWorker(Callback * callback, Recommender recommender, string query, vector<string> documents, bool useStopWords) :
 		AsyncWorker(callback),
-		documentFilePath(documentFilePath),
-		documentsFilePath(documentsFilePath),
+		recommender(recommender),
+		query(query),
+		documents(documents),
 		useStopWords(useStopWords) {}
 
 	void Execute() {
-		Recommender recommender;
-		recommender.tfidf(this->documentFilePath, this->documentsFilePath, this->useStopWords);
-		this->result = recommender.weights;
+		this->recommender.tfidf(this->query, this->documents, this->useStopWords);
+		this->result = this->recommender.weights;
 	}
 
 	void HandleOKCallback() {
@@ -31,8 +31,9 @@ public:
 	}
 
 private:
-	string documentFilePath;
-	string documentsFilePath;
+	Recommender recommender;
+	string query;
+	vector<string> documents;
 	bool useStopWords;
 	map<string, double> result;
 };

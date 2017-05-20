@@ -1,5 +1,5 @@
 #include "nan.h"
-#include "../include/recommender.h"
+#include "../../include/recommender.h"
 
 using namespace std;
 using namespace Nan;
@@ -7,12 +7,12 @@ using namespace v8;
 
 class TfIdfRecommendWorker : public AsyncWorker {
 public:
-	TfIdfRecommendWorker(Callback * callback) :
-		AsyncWorker(callback) {}
+	TfIdfRecommendWorker(Callback * callback, Recommender recommender) :
+		AsyncWorker(callback),
+		recommender(recommender) {}
 
 	void Execute() {
-		Recommender recommender;
-		this->result = recommender.recommend();
+		this->result = this->recommender.recommend();
 	}
 
 	void HandleOKCallback() {
@@ -27,6 +27,7 @@ public:
 	}
 
 private:
+	Recommender recommender;
 	string query;
 	vector<double> result;
 };

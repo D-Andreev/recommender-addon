@@ -1,5 +1,5 @@
 #include "nan.h"
-#include "../include/recommender.h"
+#include "../../include/recommender.h"
 
 using namespace std;
 using namespace Nan;
@@ -7,13 +7,13 @@ using namespace v8;
 
 class TfIdfGetSortedDocsWorker : public AsyncWorker {
 public:
-	TfIdfGetSortedDocsWorker(Callback * callback, vector<double> similarities) :
+	TfIdfGetSortedDocsWorker(Callback * callback, Recommender recommender, vector<double> similarities) :
 		AsyncWorker(callback),
+		recommender(recommender),
 		similarities(similarities) {}
 
 	void Execute() {
-		Recommender recommender;
-		this->result = recommender.getSortedDocuments(this->similarities);
+		this->result = this->recommender.getSortedDocuments(this->similarities);
 	}
 
 	void HandleOKCallback() {
@@ -28,6 +28,7 @@ public:
 	}
 
 private:
+	Recommender recommender;
 	vector<double> similarities;
 	vector<string> result;
 };

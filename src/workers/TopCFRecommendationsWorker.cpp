@@ -1,5 +1,5 @@
 #include "nan.h"
-#include "../include/recommender.h"
+#include "../../include/recommender.h"
 
 using namespace std;
 using namespace Nan;
@@ -7,15 +7,15 @@ using namespace v8;
 
 class TopCFRecommendationsWorker : public AsyncWorker {
 public:
-	TopCFRecommendationsWorker(Callback * callback, vector<vector<double>> ratings, int rowIndex, int limit) :
+	TopCFRecommendationsWorker(Callback * callback, Recommender recommender, vector<vector<double>> ratings, int rowIndex, int limit) :
 		AsyncWorker(callback),
+		recommender(recommender),
 		ratings(ratings),
 		rowIndex(rowIndex),
 		limit(limit) {}
 
 	void Execute() {
-		Recommender recommender;
-		this->result = recommender.getTopCFRecommendations(this->ratings, this->rowIndex, this->limit);
+		this->result = this->recommender.getTopCFRecommendations(this->ratings, this->rowIndex, this->limit);
 	}
 
 	void HandleOKCallback() {
@@ -34,6 +34,7 @@ public:
 	}
 
 private:
+	Recommender recommender;
 	vector<vector<double>> ratings;
 	int rowIndex;
 	int limit;
