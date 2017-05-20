@@ -92,14 +92,32 @@ NAN_METHOD(TfIdf) {
 }
 
 NAN_METHOD(Recommend) {
-	if (info[0]->IsFunction()) {
+	if (!info[0]->IsObject()) Nan::ThrowError("Invalid weights passed");
+	map<string, double> weights;
+	Local<Object> input = Local<Object>::Cast(info[0]);
+	Local<Array> property_names = input->GetOwnPropertyNames();
+	for (int i = 0; i < property_names->Length(); ++i) {
+		Local<Value> key = property_names->Get(i);
+		double value = input->Get(key)->NumberValue();
+
+		if (key->IsString()) {
+			String::Utf8Value utf8_key(key);
+			string key(*utf8_key);
+			weights[key] = value;
+		}
+		else {
+			Nan::ThrowError("Invalid weight properties passed");
+		}
+	}
+
+	if (info[1]->IsFunction()) {
 		// Async
-		Callback *callback = new Callback(info[0].As<Function>());
-		AsyncQueueWorker(new TfIdfRecommendWorker(callback, r));
+		Callback *callback = new Callback(info[1].As<Function>());
+		AsyncQueueWorker(new TfIdfRecommendWorker(callback, r, weights));
 	}
 	else {
 		// Sync
-		vector<double> similarities = r.recommend();
+		vector<double> similarities = r.recommend(weights);
 		Local<Array> result = New<v8::Array>(similarities.size());
 
 		for (unsigned i = 0; i < similarities.size(); i++) {

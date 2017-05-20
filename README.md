@@ -36,7 +36,7 @@ var documents = [
     'what is the time now'
 ];
 recommender.tfidf(query, documents, (weights) => {
-    recommender.recommend((recommendations) => {
+    recommender.recommend(weights, (recommendations) => {
         recommender.getSortedDocs(recommendations, (sortedDocs) => {
             console.log(sortedDocs);
             // Output:
@@ -68,7 +68,7 @@ var queryPath = './search_query.txt';
 var documentsPath = './documents.txt';
 
 recommender.tfidf(queryPath, documentsPath, (weights) => {
-    recommender.recommend((recommendations) => {
+    recommender.recommend(weights, (recommendations) => {
         recommender.getSortedDocs(recommendations, (sortedDocs) => {
             console.log(sortedDocs);
             // Output:
@@ -156,7 +156,7 @@ var predictedRating = recommender.getGlobalBaselineRatingPrediction(ratings, use
 ### API
 * **[recommender.tfidf(`query`, `documents`, `useStopWords`, [`callback`])](#tfidf-arrays)**
 * **[recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`, [`callback`])](#tfidf-files)**
-* **[recommender.recommend([`callback`])](#rec)**
+* **[recommender.recommend(`weights`, [`callback`])](#rec)**
 * **[recommender.getSortedDocs(recommendations, [`callback`])](#get-sorted-docs)**
 * **[recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])](#get-r-p)**
 * **[recommender.getGlobalBaselineRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])](#get-g-b)**
@@ -225,7 +225,7 @@ var weights = recommender.tfidf(queryFilePath, documentsFilePath, filterStopWord
 });
 ```
 <a name="rec"></a>
-##### recommender.recommend([`callback`])
+##### recommender.recommend(weights, [`callback`])
 ###### Arguments
 * `callback` - A function with callback. *(Optional)*
 ###### Returns
@@ -236,7 +236,7 @@ An array with float point numbers representing the similarities. Every index cor
 <a name="get-sorted-docs"></a>
 ##### recommender.getSortedDocs(recommendations, [`callback`])
 ###### Arguments
-* `similarities` - An arrray with the similarities. It is the result from recommender.recommend(). *(Required)*
+* `similarities` - An arrray with the similarities. It is the result from recommender.recommend(weights). *(Required)*
 * `callback` - A function with callback. *(Optional)*
 ###### Returns
 An array of strings with the sorted by similarity documents.
@@ -256,7 +256,7 @@ var searchQueryPath = "./search_query.txt";
 var documentsPath = "./documents.txt";
 
 recommender.tfidf(queryPath, documentsPath, (weights) => {
-    recommender.recommend((recommendations) => {
+    recommender.recommend(weights, (recommendations) => {
         recommender.getSortedDocs(recommendations, (sortedDocs) => {
             console.log(sortedDocs);  
         });

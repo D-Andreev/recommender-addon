@@ -52,12 +52,12 @@ void Recommender::tfidf(string query, vector<string> documents, bool useStopWord
 	this->weights = result;
 }
 
-vector<double> Recommender::recommend() {
+vector<double> Recommender::recommend(map<string, double> weights) {
 	vector<double> similarities;
-	if (this->weights.size() == 0) return similarities;
+	if (weights.size() == 0) return similarities;
 
 	vector<double> queryVector;
-	for (auto const &entry : this->weights) {
+	for (auto const &entry : weights) {
 		queryVector.push_back(entry.second);
 	}
 
@@ -69,7 +69,7 @@ vector<double> Recommender::recommend() {
 			bool queryTermExistsInDocument = false;
 			int foundIndex = 0;
 			int idx = 0;
-			for (auto const &entry : this->weights) {
+			for (auto const &entry : weights) {
 				if (entry.first == currentTerm) {
 					queryTermExistsInDocument = true;
 					foundIndex = idx;
