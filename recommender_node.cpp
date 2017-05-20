@@ -1,12 +1,12 @@
 #include <nan.h>
 #include "include/recommender.h"
-#include "./src/CollaborativeFilteringWorker.cpp"
-#include "./src/GlobalBaselineWorker.cpp"
-#include "./src/TopCFRecommendationsWorker.cpp"
-#include "./src/TfIdfFilesWorker.cpp"
-#include "./src/TfIdfArraysWorker.cpp"
-#include "./src/TfIdfRecommendWorker.cpp"
-#include "./src/TfIdfGetSortedDocsWorker.cpp"
+#include "src/workers/CollaborativeFilteringWorker.cpp"
+#include "src/workers/GlobalBaselineWorker.cpp"
+#include "src/workers/TopCFRecommendationsWorker.cpp"
+#include "src/workers/TfIdfFilesWorker.cpp"
+#include "src/workers/TfIdfArraysWorker.cpp"
+#include "src/workers/TfIdfRecommendWorker.cpp"
+#include "src/workers/TfIdfGetSortedDocsWorker.cpp"
 
 using namespace Nan;
 using namespace v8;
@@ -28,12 +28,12 @@ NAN_METHOD(TfIdf) {
 		if (info[2]->IsFunction()) {
 			// Async
 			Callback *callback = new Callback(info[2].As<Function>());
-			AsyncQueueWorker(new TfIdfFilesWorker(callback, documentFilePath, documentsFilePath, useStopWords));
+			AsyncQueueWorker(new TfIdfFilesWorker(callback, r, documentFilePath, documentsFilePath, useStopWords));
 		}
 		else if (info[3]->IsFunction()) {
 			// Async
 			Callback *callback = new Callback(info[3].As<Function>());
-			AsyncQueueWorker(new TfIdfFilesWorker(callback, documentFilePath, documentsFilePath, useStopWords));
+			AsyncQueueWorker(new TfIdfFilesWorker(callback, r, documentFilePath, documentsFilePath, useStopWords));
 		}
 		else {
 			// Sync
@@ -66,12 +66,12 @@ NAN_METHOD(TfIdf) {
 		if (info[2]->IsFunction()) {
 			// Async
 			Callback *callback = new Callback(info[2].As<Function>());
-			AsyncQueueWorker(new TfIdfArraysWorker(callback, query, documents, useStopWords));
+			AsyncQueueWorker(new TfIdfArraysWorker(callback, r, query, documents, useStopWords));
 		}
 		else if (info[3]->IsFunction()) {
 			// Async
 			Callback *callback = new Callback(info[3].As<Function>());
-			AsyncQueueWorker(new TfIdfArraysWorker(callback, query, documents, useStopWords));
+			AsyncQueueWorker(new TfIdfArraysWorker(callback, r, query, documents, useStopWords));
 		}
 		else {
 			// Sync
@@ -95,7 +95,7 @@ NAN_METHOD(Recommend) {
 	if (info[0]->IsFunction()) {
 		// Async
 		Callback *callback = new Callback(info[0].As<Function>());
-		AsyncQueueWorker(new TfIdfRecommendWorker(callback));
+		AsyncQueueWorker(new TfIdfRecommendWorker(callback, r));
 	}
 	else {
 		// Sync
@@ -124,7 +124,7 @@ NAN_METHOD(GetSortedDocs) {
 	if (info[1]->IsFunction()) {
 		// Async
 		Callback *callback = new Callback(info[1].As<Function>());
-		AsyncQueueWorker(new TfIdfGetSortedDocsWorker(callback, similarities));
+		AsyncQueueWorker(new TfIdfGetSortedDocsWorker(callback, r, similarities));
 	}
 	else {
 		// Sync
@@ -166,7 +166,7 @@ NAN_METHOD(GetRatingPrediction) {
 	if (info[3]->IsFunction()) {
 		// Async
 		Callback *callback = new Callback(info[3].As<Function>());
-		AsyncQueueWorker(new CollaborativeFilteringWorker(callback, ratings, rowIndex, colIndex));
+		AsyncQueueWorker(new CollaborativeFilteringWorker(callback, r, ratings, rowIndex, colIndex));
 	}
 	else {
 		// Sync
@@ -203,7 +203,7 @@ NAN_METHOD(GetGlobalBaselineRatingPrediction) {
 	if (info[3]->IsFunction()) {
 		// Async
 		Callback *callback = new Callback(info[3].As<Function>());
-		AsyncQueueWorker(new GlobalBaselineWorker(callback, ratings, rowIndex, colIndex));
+		AsyncQueueWorker(new GlobalBaselineWorker(callback, r, ratings, rowIndex, colIndex));
 	}
 	else {
 		// Sync
@@ -242,7 +242,7 @@ NAN_METHOD(GetTopCFRecommendations) {
 	if (info[3]->IsFunction()) {
 		// Async
 		Callback *callback = new Callback(info[3].As<Function>());
-		AsyncQueueWorker(new TopCFRecommendationsWorker(callback, ratings, rowIndex, limit));
+		AsyncQueueWorker(new TopCFRecommendationsWorker(callback, r, ratings, rowIndex, limit));
 	}
 	else {
 		// Sync
