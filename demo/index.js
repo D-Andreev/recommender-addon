@@ -268,7 +268,7 @@ recommender.tfidf(documentPath, documentsPath, false, (res) => {
         assert.deepEqual(res, expectedWeights);
         recommender.getSortedDocs(res, (sortedDocumentsResult) => {
             console.log('TF-IDF getSortedDocs async result', sortedDocumentsResult);
-            assert.deepEqual(sortedDocs, expectedSortedDocs);
+            assert.deepEqual(sortedDocumentsResult, expectedSortedDocs);
         });
     });
 });
