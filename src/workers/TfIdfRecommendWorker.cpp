@@ -7,12 +7,13 @@ using namespace v8;
 
 class TfIdfRecommendWorker : public AsyncWorker {
 public:
-	TfIdfRecommendWorker(Callback * callback, Recommender recommender) :
+	TfIdfRecommendWorker(Callback * callback, Recommender recommender, map<string, double> weights) :
 		AsyncWorker(callback),
-		recommender(recommender) {}
+		recommender(recommender),
+		weights(weights) {}
 
 	void Execute() {
-		this->result = this->recommender.recommend();
+		this->result = this->recommender.recommend(this->weights);
 	}
 
 	void HandleOKCallback() {
@@ -28,6 +29,7 @@ public:
 
 private:
 	Recommender recommender;
+	map<string, double> weights;
 	string query;
 	vector<double> result;
 };

@@ -18,7 +18,7 @@ var documents = [
 
 var weights = recommender.tfidf(query, documents);
 console.log(weights);
-var recommendations = recommender.recommend();
+var recommendations = recommender.recommend(weights);
 console.log(recommendations);
 var sortedDocs = recommender.getSortedDocs(recommendations);
 console.log(sortedDocs);
@@ -46,7 +46,7 @@ assert.deepEqual(sortedDocs, expectedSortedDocs);
 // TF-IDF with files input
 console.log('TF-IDF with files input');
 var weights = recommender.tfidf(documentPath, documentsPath);
-var recommendations = recommender.recommend();
+var recommendations = recommender.recommend(weights);
 var sortedDocs = recommender.getSortedDocs(recommendations);
 
 var expectedWeights = {
@@ -136,7 +136,7 @@ assert.equal(predictedRating, 3.6363636363636362);
 // Get TOP CF Recommendations
 console.log('='.repeat(50));
 console.log('Top CF Recommendations');
-var expectedRecommendations = [
+var expectedTopRecommendations = [
   { itemId: 1, rating: 5 },
   { itemId: 5, rating: 5 },
   { itemId: 2, rating: 4 }
@@ -144,8 +144,8 @@ var expectedRecommendations = [
 var recommendations = recommender.getTopCFRecommendations(userRatings, 0, 100);
 console.log(recommendations);
 recommendations.forEach((item, index) => {
-    assert.equal(item.itemId, expectedRecommendations[index].itemId);
-    assert.equal(item.rating, expectedRecommendations[index].rating);
+    assert.equal(item.itemId, expectedTopRecommendations[index].itemId);
+    assert.equal(item.rating, expectedTopRecommendations[index].rating);
 });
 
 // Async examples
@@ -185,7 +185,7 @@ recommender.getGlobalBaselineRatingPrediction(userRatings, rowIndex, colIndex, (
 // Get TOP CF Recommendations async
 console.log('='.repeat(50));
 console.log('Top CF Recommendations async');
-var expectedRecommendations = [
+expectedTopRecommendations = [
   { itemId: 1, rating: 5 },
   { itemId: 5, rating: 5 },
   { itemId: 2, rating: 4 }
@@ -193,8 +193,8 @@ var expectedRecommendations = [
 recommender.getTopCFRecommendations(userRatings, 0, 100, (res) => {
     console.log('Top CF Recommendations async result', res);
     res.forEach((item, index) => {
-        assert.equal(item.itemId, expectedRecommendations[index].itemId);
-        assert.equal(item.rating, expectedRecommendations[index].rating);
+        assert.equal(item.itemId, expectedTopRecommendations[index].itemId);
+        assert.equal(item.rating, expectedTopRecommendations[index].rating);
     });
 });
 
@@ -262,15 +262,15 @@ recommender.tfidf(documentPath, documentsPath, false, (res) => {
 
 // TF-IDF getSortedDocs async
 console.log('TF-IDF getSortedDocs async');
-recommender.tfidf(documentPath, documentsPath, false, (res) => {
-    console.log('TF-IDF with files input and stopWords async result', res);
-    assert.deepEqual(res, expectedWeights);
-    recommender.tfidf(documentPath, documentsPath, false, (res) => {
-        console.log('TF-IDF recommend async result', res);
-        assert.deepEqual(res, expectedWeights);
-        recommender.getSortedDocs(res, (sortedDocumentsResult) => {
+recommender.tfidf(documentPath, documentsPath, false, (weights) => {
+    console.log('TF-IDF with files input and stopWords async result', weights);
+    assert.deepEqual(weights, expectedWeights);
+    recommender.recommend(weights, (recommendations) => {
+        console.log('TF-IDF recommend async result', recommendations);
+        assert.deepEqual(recommendations, expectedRecommendations);
+        recommender.getSortedDocs(recommendations, (sortedDocumentsResult) => {
             console.log('TF-IDF getSortedDocs async result', sortedDocumentsResult);
-            assert.deepEqual(sortedDocs, expectedSortedDocs);
+            assert.deepEqual(sortedDocumentsResult, expectedSortedDocs);
 
             // EXIT
             process.exit();
