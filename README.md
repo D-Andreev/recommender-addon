@@ -139,7 +139,7 @@ var movieIndex = 1;
 // We are predicting the rating of A for HP2.
 var predictedRating = recommender.getGlobalBaselineRatingPrediction(ratings, userIndex, movieIndex);
 console.log(predictedRating);
-// Output: 3.0909090909090913
+// Output: 3.6363636363636362
 ```
 ### API
 * **[recommender.tfidf(`query`, `documents`, `useStopWords`)](https://github.com/D-Andreev/recommender-addon/blob/2a17c6b0f95023381710854c1544242362cd7868/README.md#recommendertfidfquery-documents-usestopwords)**
@@ -275,7 +275,7 @@ var ratings = [
 var userIndex = 0;
 var movieIndex = 1;
 var predictedRating = recommender.getGlobalBaselineRatingPrediction(ratings, userIndex, movieIndex);
-// Output: 3.0909090909090913
+// Output: 3.6363636363636362
 ```
 ##### recommender.getTopCFRecommendations(`ratings`, `rowIndex`, `limit`)
 ###### Arguments

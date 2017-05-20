@@ -1,6 +1,8 @@
 #ifndef RECOMMENDER_H
 #define RECOMMENDER_H
 
+#pragma once
+
 #include <vector>
 #include <string>
 #include <map>
@@ -27,7 +29,7 @@ private:
 	bool useStopWords;
 	vector<vector<string>> vocabulary;
 
-	string readDocument(string documentFilePath);
+	vector<string> readDocument(string documentFilePath);
 	vector<vector<string>> getVocabulary(string documentsFilePath);
 	vector<string> splitLineToWords(const string &line);
 	int getNumberOfTimesTermAppears(const string& term, vector<string> document) const;

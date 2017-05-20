@@ -86,11 +86,36 @@ var predictedRating = recommender.getRatingPrediction(userRatings, rowIndex, col
 console.log(predictedRating);
 assert.equal(predictedRating, 2.586406866934817);
 
+// Colaborative filtering another example
+userRatings = [
+    [1, 0, 3, 0, 0, 5, 0, 0, 5, 0, 4, 0],
+	[0, 0, 5, 4, 0, 0, 4, 0, 0, 2, 1, 3],
+	[2, 4, 0, 1, 0, 0, 3, 0, 4, 3, 5, 0],
+	[0, 2, 4, 0, 0, 0, 0, 4, 0, 0, 2, 0],
+	[0, 0, 4, 3, 0, 2, 0, 0, 0, 0, 2, 5],
+	[1, 0, 3, 0, 0, 0, 0, 2, 0, 0, 4, 0]
+];
+
+console.log('Colaborative filtering example');
+var rowIndex = 0;
+var colIndex = 4;
+var predictedRating = recommender.getRatingPrediction(userRatings, rowIndex, colIndex);
+console.log(predictedRating);
+assert.equal(predictedRating, 0);
+
 // Global baseline rating prediction
+userRatings = [
+    [1, 0, 3, 0, 0, 5, 0, 0, 5, 0, 4, 0],
+	[0, 0, 5, 4, 0, 0, 4, 0, 0, 2, 1, 3],
+	[2, 4, 0, 1, 2, 0, 3, 0, 4, 3, 5, 0],
+	[0, 2, 4, 0, 5, 0, 0, 4, 0, 0, 2, 0],
+	[0, 0, 4, 3, 4, 2, 0, 0, 0, 0, 2, 5],
+	[1, 0, 3, 0, 3, 0, 0, 2, 0, 0, 4, 0]
+];
 console.log('Global baseline example');
 predictedRating = recommender.getGlobalBaselineRatingPrediction(userRatings, rowIndex, colIndex);
 console.log(predictedRating);
-assert.equal(predictedRating, 2.4142857142857137);
+assert.equal(predictedRating, 3.928571428571429);
 
 // Global baseline another example
 console.log('Global baseline another example');
@@ -104,6 +129,7 @@ rowIndex = 0;
 colIndex = 1;
 var predictedRating = recommender.getGlobalBaselineRatingPrediction(userRatings, rowIndex, colIndex);
 console.log(predictedRating);
+assert.equal(predictedRating, 3.6363636363636362);
 
 // Get TOP CF Recommendations
 console.log('Top CF Recommendations');

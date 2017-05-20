@@ -1,5 +1,5 @@
 #include <nan.h>
-#include "src/recommender.cpp"
+#include "include/recommender.h"
 
 using namespace Nan;
 using namespace v8;
