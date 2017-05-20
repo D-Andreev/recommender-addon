@@ -1,7 +1,7 @@
+#pragma once
+
 #ifndef RECOMMENDER_H
 #define RECOMMENDER_H
-
-#pragma once
 
 #include <vector>
 #include <string>

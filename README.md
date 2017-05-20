@@ -1,5 +1,5 @@
 # Recommender
-`recommender` is a node addon with utility functions, which can help when building a recommender system. It contains implementations of [`tf-idf`](https://en.wikipedia.org/wiki/Tf%E2%80%93idf), [`Collaborative Filtering`](https://en.wikipedia.org/wiki/Collaborative_filtering) and `Global Baseline Approach` which are commonly used in recommendation systems.
+`recommender` is a node addon with utility functions, which can help when building a recommender system. It contains implementations of [`tf-idf`](https://en.wikipedia.org/wiki/Tf%E2%80%93idf), [`Collaborative Filtering`](https://en.wikipedia.org/wiki/Collaborative_filtering) and `Global Baseline Approach` which are commonly used in recommendation systems. Each of the API methods has a sync and an async variation. Using the async methods is highly recommended, because they work in a new thread and do not block the event loop. 
 
 [![NPM](https://nodei.co/npm/recommender.png?downloads=true&downloadRank=true)](https://nodei.co/npm/recommender/)
 
@@ -31,7 +31,7 @@ var documents = [
 ];
 var weights = recommender.tfidf(query, documents);
 var recommendations = recommender.recommend();
-var sortedDocs = recommender.getSortedDocs();
+var sortedDocs = recommender.getSortedDocs(recommendations);
 console.log(sortedDocs);
 // Output:
 /**
@@ -60,7 +60,7 @@ var documentsPath = './documents.txt';
 
 var weights = recommender.tfidf(queryPath, documentsPath);
 var recommendations = recommender.recommend();
-var sortedDocs = recommender.getSortedDocs();
+var sortedDocs = recommender.getSortedDocs(recommendations);
 console.log(sortedDocs);
 // Output:
 /**
@@ -145,7 +145,7 @@ console.log(predictedRating);
 * **[recommender.tfidf(`query`, `documents`, `useStopWords`)](https://github.com/D-Andreev/recommender-addon/blob/2a17c6b0f95023381710854c1544242362cd7868/README.md#recommendertfidfquery-documents-usestopwords)**
 * **[recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendertfidfsearchqueryfilepath-documentsfilepath-usestopwords)**
 * **[recommender.recommend()](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommenderrecommend)**
-* **[recommender.getSortedDocs()](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetsorteddocs)**
+* **[recommender.getSortedDocs(recommendations)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetsorteddocs-recommendations)**
 * **[recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetratingpredictionratings-rowindex-colindex)**
 * **[recommender.getGlobalBaselineRatingPrediction(`ratings`, `rowIndex`, `colIndex`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetglobalbaselineratingpredictionratings-rowindex-colindex)**
 * **[recommender.getTopCFRecommendations(`ratings`, `rowIndex`, `limit`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergettopcfrecommendationsratings-rowindex-limit)**
@@ -211,7 +211,9 @@ An array with float point numbers representing the similarities. Every index cor
 ```js
 [1, 0.80190163009065796, 0, 0.32239672715496848]
 ```
-##### recommender.getSortedDocs()
+##### recommender.getSortedDocs(recommendations)
+###### Arguments
+* `similarities` - An arrray with the similarities. It is the result from recommender.recommend(). *(Required)*
 ###### Returns
 An array of strings with the sorted by similarity documents.
 ```js
@@ -231,7 +233,7 @@ var documentsPath = "./documents.txt";
 
 var weights = recommender.tfidf(searchQueryPath, documentsPath);
 var recommendations = recommender.recommend();
-var sortedDocs = recommender.getSortedDocs();
+var sortedDocs = recommender.getSortedDocs(recommendations);
 ```
 ##### recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`)
 ###### Arguments
