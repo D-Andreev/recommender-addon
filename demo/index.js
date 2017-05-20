@@ -148,6 +148,8 @@ recommendations.forEach((item, index) => {
     assert.equal(item.rating, expectedRecommendations[index].rating);
 });
 
+// Async examples
+/*
 // Colaborative filtering async example
 userRatings = [
     [4, 0, 0, 1, 1, 0, 0],
@@ -274,4 +276,4 @@ recommender.tfidf(documentPath, documentsPath, false, (res) => {
             process.exit();
         });
     });
-});
+});*/
