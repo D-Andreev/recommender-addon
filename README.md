@@ -1,5 +1,5 @@
 # Recommender
-`recommender` is a node addon with utility functions, which can help when building a recommender system. It contains implementations of [`tf-idf`](https://en.wikipedia.org/wiki/Tf%E2%80%93idf), [`Collaborative Filtering`](https://en.wikipedia.org/wiki/Collaborative_filtering) and `Global Baseline Approach` which are commonly used in recommendation systems. Each of the API methods has a **sync** and an **async** variation. **Using the async methods is highly recommended**, because they work in new threads and do not block the event loop. 
+`recommender` is a node addon with utility functions, which can help when building a recommender system. It contains implementations of [`tf-idf`](https://en.wikipedia.org/wiki/Tf%E2%80%93idf), [`Collaborative Filtering`](https://en.wikipedia.org/wiki/Collaborative_filtering) and `Global Baseline Approach` which are commonly used in recommendation systems. Each of the API methods have a **sync** and an **async** variation. **Using the async methods is highly recommended**, because they work in new threads and do not block the event loop. 
 
 [![NPM](https://nodei.co/npm/recommender.png?downloads=true&downloadRank=true)](https://nodei.co/npm/recommender/)
 
@@ -18,7 +18,7 @@
 ## Usage
 
 ### TF-IDF
-The input of TF-IDF is a search query and a collection of documents. It finds how important a word is to a document in a collection or corpus. Then using cosine similarity we can get the most similar documents to the search query and make recommendations.
+The input of TF-IDF is a search query and a collection of documents. It finds how important a word is to a document in a collection. Then using cosine similarity we can get the most similar documents to the search query and make recommendations.
 ```js
 var recommender = require('recommender');
 
@@ -84,33 +84,29 @@ var weights = recommender.tfidf(queryPath, documentsPath, filterStopWords, calba
 ```
 
 ### Collaborative filtering
-The input for collaborative filtering is a table with user ratings. Each row is an item and each column is a user. Consider the following table with ratings of movies. `U01,U02,U03...U13` are users and `M01,M02,M03...M6` are movies. A rating of `0` means that the user has not rated the movie. In this example ratings range from `1` to `5`, but they can be in any system (i.e. 1-10).
+The input for collaborative filtering is a table with user ratings. Consider the following example.
 ```
-        U01   U02   U03   U04   U05   U06   U07   U08   U10   U11   U12   U13
-   M1   1     0     3     0     0     5     0     0     5     0     4     0
-   M2   0     0     5     4     0     0     4     0     0     2     1     3
-   M3   2     4     0     1     2     0     3     0     4     3     5     0
-   M4   0     2     4     0     5     0     0     4     0     0     2     0
-   M5   0     0     4     3     4     2     0     0     0     0     2     5
-   M6   1     0     3     0     3     0     0     2     0     0     4     0
+       HP1   HP2   HP3   TW   SW1   SW2   SW3
+   A   4     0     0     1     1     0     0
+   B   5     5     4     0     0     0     0
+   C   0     0     0     2     4     5     0
+   D   3     0     0     0     0     0     3
 ```
-Aside from the ratings table we need to pass the row index and column index for the rating we wish to predict.
+`A`, `B`, `C` and `D` are users. `HP1` (Harry Potter 1), `TW` (Twilight), `SW1` (Star Wars 1) are movies.  A rating of `0` means that the user has not rated the movie. In this example ratings range from `1` to `5`, but they can be in any system (i.e. 1-10). The predicted rating of user `A` for `HP2`, using collaborative filtering is `4`. Aside from the ratings table we need to pass the row index and column index for the rating we wish to predict.
 ```js
 var recommender = require('recommender');
 var ratings = [
-    [ 1, 0, 3, 0, 0, 5, 0, 0, 5, 0, 4, 0 ],
-	[ 0, 0, 5, 4, 0, 0, 4, 0, 0, 2, 1, 3 ],
-	[ 2, 4, 0, 1, 2, 0, 3, 0, 4, 3, 5, 0 ],
-	[ 0, 2, 4, 0, 5, 0, 0, 4, 0, 0, 2, 0 ],
-	[ 0, 0, 4, 3, 4, 2, 0, 0, 0, 0, 2, 5 ],
-	[ 1, 0, 3, 0, 3, 0, 0, 2, 0, 0, 4, 0 ]
+    [ 4, 0, 0, 1, 1, 0, 0 ],
+	[ 5, 5, 4, 0, 0, 0, 0 ],
+	[ 0, 0, 0, 2, 4, 5, 0 ],
+	[ 3, 0, 0, 0, 0, 0, 3 ]
 ];
 var movieIndex = 0;
 var userIndex = 4;
 // We are predicting the rating of U05 for M1.
 var predictedRating = recommender.getRatingPrediction(ratings, movieIndex, userIndex, (predictedRating) => {
     console.log(predictedRating);
-// Output: 2.586406866934817
+// Output: 4
 });
 ```
 There are pros and cons of using only the collaborative filtering method to predict ratings.
@@ -132,7 +128,7 @@ Consider the following utility matrix with ratings:
    C   0     0     0     2     4     5     0
    D   3     0     0     0     0     0     3
 ```
-`A`, `B`, `C` and `D` are users. `HP1` (Harry Potter 1), `TW` (Twilight), `SW1` (Star Wars 1) are movies. The predicted rating of user `A` for `HP2`, using the global baseline approach is `3.0909090909090913`.
+`A`, `B`, `C` and `D` are users. `HP1` (Harry Potter 1), `TW` (Twilight), `SW1` (Star Wars 1) are movies. The predicted rating of user `A` for `HP2`, using the global baseline approach is `3.6363636363636362`.
 ```js
 var recommender = require('recommender');
 var ratings = [
