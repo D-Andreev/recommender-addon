@@ -1,5 +1,5 @@
 # Recommender
-`recommender` is a node addon with utility functions, which can help when building a recommender system. It contains implementations of [`tf-idf`](https://en.wikipedia.org/wiki/Tf%E2%80%93idf), [`Collaborative Filtering`](https://en.wikipedia.org/wiki/Collaborative_filtering) and `Global Baseline Approach` which are commonly used in recommendation systems.
+`recommender` is a node addon with utility functions, which can help when building a recommender system. It contains implementations of [`tf-idf`](https://en.wikipedia.org/wiki/Tf%E2%80%93idf), [`Collaborative Filtering`](https://en.wikipedia.org/wiki/Collaborative_filtering) and `Global Baseline Approach` which are commonly used in recommendation systems. Each of the API methods have a **sync** and an **async** variation. **Using the async methods is highly recommended**, because they work in new threads and do not block the event loop. 
 
 [![NPM](https://nodei.co/npm/recommender.png?downloads=true&downloadRank=true)](https://nodei.co/npm/recommender/)
 
@@ -18,7 +18,7 @@
 ## Usage
 
 ### TF-IDF
-The input of TF-IDF is a search query and a collection of documents. It finds how important a word is to a document in a collection or corpus. Then using cosine similarity we can get the most similar documents to the search query and make recommendations.
+The input of TF-IDF is a search query and a collection of documents. It finds how important a word is to a document in a collection. Then using cosine similarity we can get the most similar documents to the search query and make recommendations.
 ```js
 var recommender = require('recommender');
 
@@ -29,17 +29,20 @@ var documents = [
     'something very different',
     'what is the time now'
 ];
-var weights = recommender.tfidf(query, documents);
-var recommendations = recommender.recommend();
-var sortedDocs = recommender.getSortedDocs();
-console.log(sortedDocs);
-// Output:
-/**
-    get the current date and time in javascript
-    get the current date and time in python
-	what is the time now
-    something very different
-*/
+recommender.tfidf(query, documents, (weights) => {
+    recommender.recommend((recommendations) => {
+        recommender.getSortedDocs(recommendations, (sortedDocs) => {
+            console.log(sortedDocs);
+            // Output:
+            /**
+                get the current date and time in javascript
+                get the current date and time in python
+            	what is the time now
+                something very different
+            */     
+        });
+    });
+});
 ```
 The `tfidf` method also accepts paths to the files where our query and documents are. We can create a text file for the query - `search_query.txt` with content:
 ```
@@ -58,53 +61,53 @@ var recommender = require('recommender');
 var queryPath = './search_query.txt';
 var documentsPath = './documents.txt';
 
-var weights = recommender.tfidf(queryPath, documentsPath);
-var recommendations = recommender.recommend();
-var sortedDocs = recommender.getSortedDocs();
-console.log(sortedDocs);
-// Output:
-/**
-    get the current date and time in javascript
-    get the current date and time in python
-	what is the time now
-    something very different
-*/
+recommender.tfidf(queryPath, documentsPath, (weights) => {
+    recommender.recommend((recommendations) => {
+        recommender.getSortedDocs(recommendations, (sortedDocs) => {
+            console.log(sortedDocs);
+            // Output:
+            /**
+                get the current date and time in javascript
+                get the current date and time in python
+            	what is the time now
+                something very different
+            */     
+        });
+    });
+});
 ```
 
 We can also pass `filterStopWords` which is optional and `false` by default. If `filterStopWords` is `true` those words will be filtered out and not considered when calculating similarity. Stop-words are those words that appear very commonly across the documents, therefore loosing their representativeness and don't contribute to the meaning of the text. i.e (`a`, `about`, `the`, `if`, `it`, `is`...). The full stop words list can be viewed [here](https://github.com/D-Andreev/recommender-addon/blob/master/include/Constants.h#L8).
 ```js
 bool filterStopWords = true;
-var weights = recommender.tfidf(queryPath, documentsPath, filterStopWords);
+var weights = recommender.tfidf(queryPath, documentsPath, filterStopWords, calback);
 ```
 
 ### Collaborative filtering
-The input for collaborative filtering is a table with user ratings. Each row is an item and each column is a user. Consider the following table with ratings of movies. `U01,U02,U03...U13` are users and `M01,M02,M03...M6` are movies. A rating of `0` means that the user has not rated the movie. In this example ratings range from `1` to `5`, but they can be in any system (i.e. 1-10).
+The input for collaborative filtering is a table with user ratings. Consider the following example.
 ```
-        U01   U02   U03   U04   U05   U06   U07   U08   U10   U11   U12   U13
-   M1   1     0     3     0     0     5     0     0     5     0     4     0
-   M2   0     0     5     4     0     0     4     0     0     2     1     3
-   M3   2     4     0     1     2     0     3     0     4     3     5     0
-   M4   0     2     4     0     5     0     0     4     0     0     2     0
-   M5   0     0     4     3     4     2     0     0     0     0     2     5
-   M6   1     0     3     0     3     0     0     2     0     0     4     0
+       HP1   HP2   HP3   TW   SW1   SW2   SW3
+   A   4     0     0     1     1     0     0
+   B   5     5     4     0     0     0     0
+   C   0     0     0     2     4     5     0
+   D   3     0     0     0     0     0     3
 ```
-Aside from the ratings table we need to pass the row index and column index for the rating we wish to predict.
+`A`, `B`, `C` and `D` are users. `HP1` (Harry Potter 1), `TW` (Twilight), `SW1` (Star Wars 1) are movies.  A rating of `0` means that the user has not rated the movie. In this example ratings range from `1` to `5`, but they can be in any system (i.e. 1-10). The predicted rating of user `A` for `HP2`, using collaborative filtering is `4`. Aside from the ratings table we need to pass the row index and column index for the rating we wish to predict.
 ```js
 var recommender = require('recommender');
 var ratings = [
-    [ 1, 0, 3, 0, 0, 5, 0, 0, 5, 0, 4, 0 ],
-	[ 0, 0, 5, 4, 0, 0, 4, 0, 0, 2, 1, 3 ],
-	[ 2, 4, 0, 1, 2, 0, 3, 0, 4, 3, 5, 0 ],
-	[ 0, 2, 4, 0, 5, 0, 0, 4, 0, 0, 2, 0 ],
-	[ 0, 0, 4, 3, 4, 2, 0, 0, 0, 0, 2, 5 ],
-	[ 1, 0, 3, 0, 3, 0, 0, 2, 0, 0, 4, 0 ]
+    [ 4, 0, 0, 1, 1, 0, 0 ],
+	[ 5, 5, 4, 0, 0, 0, 0 ],
+	[ 0, 0, 0, 2, 4, 5, 0 ],
+	[ 3, 0, 0, 0, 0, 0, 3 ]
 ];
 var movieIndex = 0;
 var userIndex = 4;
 // We are predicting the rating of U05 for M1.
-var predictedRating = recommender.getRatingPrediction(ratings, movieIndex, userIndex);
-console.log(predictedRating);
-// Output: 2.586406866934817
+var predictedRating = recommender.getRatingPrediction(ratings, movieIndex, userIndex, (predictedRating) => {
+    console.log(predictedRating);
+// Output: 4
+});
 ```
 There are pros and cons of using only the collaborative filtering method to predict ratings.
 * Pros
@@ -125,7 +128,7 @@ Consider the following utility matrix with ratings:
    C   0     0     0     2     4     5     0
    D   3     0     0     0     0     0     3
 ```
-`A`, `B`, `C` and `D` are users. `HP1` (Harry Potter 1), `TW` (Twilight), `SW1` (Star Wars 1) are movies. The predicted rating of user `A` for `HP2`, using the global baseline approach is `3.0909090909090913`.
+`A`, `B`, `C` and `D` are users. `HP1` (Harry Potter 1), `TW` (Twilight), `SW1` (Star Wars 1) are movies. The predicted rating of user `A` for `HP2`, using the global baseline approach is `3.6363636363636362`.
 ```js
 var recommender = require('recommender');
 var ratings = [
@@ -137,24 +140,26 @@ var ratings = [
 var userIndex = 0;
 var movieIndex = 1;
 // We are predicting the rating of A for HP2.
-var predictedRating = recommender.getGlobalBaselineRatingPrediction(ratings, userIndex, movieIndex);
-console.log(predictedRating);
+var predictedRating = recommender.getGlobalBaselineRatingPrediction(ratings, userIndex, movieIndex, (predictedRating) => {
+    console.log(predictedRating);
 // Output: 3.6363636363636362
+});
 ```
 ### API
-* **[recommender.tfidf(`query`, `documents`, `useStopWords`)](https://github.com/D-Andreev/recommender-addon/blob/2a17c6b0f95023381710854c1544242362cd7868/README.md#recommendertfidfquery-documents-usestopwords)**
-* **[recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendertfidfsearchqueryfilepath-documentsfilepath-usestopwords)**
-* **[recommender.recommend()](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommenderrecommend)**
-* **[recommender.getSortedDocs()](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetsorteddocs)**
-* **[recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetratingpredictionratings-rowindex-colindex)**
-* **[recommender.getGlobalBaselineRatingPrediction(`ratings`, `rowIndex`, `colIndex`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetglobalbaselineratingpredictionratings-rowindex-colindex)**
-* **[recommender.getTopCFRecommendations(`ratings`, `rowIndex`, `limit`)](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergettopcfrecommendationsratings-rowindex-limit)**
+* **[recommender.tfidf(`query`, `documents`, `useStopWords`, [`callback`])](https://github.com/D-Andreev/recommender-addon/blob/2a17c6b0f95023381710854c1544242362cd7868/README.md#recommendertfidfquery-documents-usestopwords)**
+* **[recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`, [`callback`])](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendertfidfsearchqueryfilepath-documentsfilepath-usestopwords)**
+* **[recommender.recommend([`callback`])](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommenderrecommend)**
+* **[recommender.getSortedDocs(recommendations, [`callback`])](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetsorteddocs-recommendations)**
+* **[recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetratingpredictionratings-rowindex-colindex)**
+* **[recommender.getGlobalBaselineRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergetglobalbaselineratingpredictionratings-rowindex-colindex)**
+* **[recommender.getTopCFRecommendations(`ratings`, `rowIndex`, `limit`, [`callback`])](https://github.com/D-Andreev/recommender-addon/blob/0b61872cdfb58074110ab703464c45a22d0ce9ca/README.md#recommendergettopcfrecommendationsratings-rowindex-limit)**
 
-##### recommender.tfidf(`query`, `documents`, `useStopWords`)
+##### recommender.tfidf(`query`, `documents`, `useStopWords`, [`callback`])
 ###### Arguments
 * `query` - A string with the query. *(Required)*
 * `documents` - An array of strings with the documents. *(Required)*
 * `filterStopWords` - A boolean to filter out the stop words or not. *(Optional)* *(Default: `false`)*
+* `callback` - A function with callback. *(Optional)*
 ###### Returns
 An object with each of the terms in the search query as keys and a float number with the weight of the term.
 ```js
@@ -178,13 +183,16 @@ var documents = [
     'what is the time now'
 ];
 bool filterStopWords = true;
-var weights = recommender.tfidf(query, documents, filterStopWords);
+recommender.tfidf(query, documents, filterStopWords, (weights) => {
+    // use weights here....
+});
 ```
-##### recommender.tfidf(`queryFilePath`, `documentsFilePath`, `useStopWords`)
+##### recommender.tfidf(`queryFilePath`, `documentsFilePath`, `useStopWords`, [`callback`])
 ###### Arguments
 * `queryFilePath` - A string with the file path to the search query text file. *(Required)*
 * `documentsFilePath` - A string with the file path to the documents text file. *(Required)*
 * `filterStopWords` - A boolean to filter out the stop words or not. *(Optional)* *(Default: `false`)*
+* `callback` - A function with callback. *(Optional)*
 ###### Returns
 An object with each of the terms in the search query as keys and a float number with the weight of the term.
 ```js
@@ -203,15 +211,22 @@ var recommender = require('recommender');
 var queryFilePath = './search_query.txt';
 var documentsFilePath = './documents.txt';
 bool filterStopWords = true;
-var weights = recommender.tfidf(queryFilePath, documentsFilePath, filterStopWords);
+var weights = recommender.tfidf(queryFilePath, documentsFilePath, filterStopWords, (weights) => {
+    // use weights here...
+});
 ```
-##### recommender.recommend()
+##### recommender.recommend([`callback`])
+###### Arguments
+* `callback` - A function with callback. *(Optional)*
 ###### Returns
 An array with float point numbers representing the similarities. Every index corresponds to the index of the document in `documents.txt`.
 ```js
 [1, 0.80190163009065796, 0, 0.32239672715496848]
 ```
-##### recommender.getSortedDocs()
+##### recommender.getSortedDocs(recommendations, [`callback`])
+###### Arguments
+* `similarities` - An arrray with the similarities. It is the result from recommender.recommend(). *(Required)*
+* `callback` - A function with callback. *(Optional)*
 ###### Returns
 An array of strings with the sorted by similarity documents.
 ```js
@@ -229,15 +244,20 @@ var recommender = require('recommender');
 var searchQueryPath = "./search_query.txt";
 var documentsPath = "./documents.txt";
 
-var weights = recommender.tfidf(searchQueryPath, documentsPath);
-var recommendations = recommender.recommend();
-var sortedDocs = recommender.getSortedDocs();
+recommender.tfidf(queryPath, documentsPath, (weights) => {
+    recommender.recommend((recommendations) => {
+        recommender.getSortedDocs(recommendations, (sortedDocs) => {
+            console.log(sortedDocs);  
+        });
+    });
+});
 ```
-##### recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`)
+##### recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])
 ###### Arguments
 * `ratings` - A two dimensional array with numbers representing the ratings. *(Required)*
 * `rowIndex` - An integer with the index of the target row for prediction. *(Required)*
 * `colIndex` - An integer with the index of the target column for prediction. *(Required)*
+* `callback` - A function with callback. *(optional)*
 ###### Returns
 A float number with the predicted rating.
 ###### Examples
@@ -254,13 +274,16 @@ var ratings = [
 ];
 var rowIndex = 0;
 var colIndex = 4;
-var predictedRating = recommender.getRatingPrediction(ratings, rowIndex, colIndex); // 2.586406866934817
+recommender.getRatingPrediction(ratings, rowIndex, colIndex, (predictedRating) => {
+    // predictedRating is 2.586406866934817
+});
 ```
-##### recommender.getGlobalBaselineRatingPrediction(`ratings`, `rowIndex`, `colIndex`)
+##### recommender.getGlobalBaselineRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])
 ###### Arguments
 * `ratings` - A two dimensional array with numbers representing the ratings. *(Required)*
 * `rowIndex` - An integer with the index of the target row for prediction. *(Required)*
 * `colIndex` - An integer with the index of the target column for prediction. *(Required)*
+* `callback` - A function with callback. *(optional)*
 ###### Returns
 A float number with the predicted rating.
 ###### Examples
@@ -274,14 +297,16 @@ var ratings = [
 ];
 var userIndex = 0;
 var movieIndex = 1;
-var predictedRating = recommender.getGlobalBaselineRatingPrediction(ratings, userIndex, movieIndex);
-// Output: 3.6363636363636362
+recommender.getGlobalBaselineRatingPrediction(ratings, userIndex, movieIndex, (predictedRating) => {
+    // predictedRating is 3.6363636363636362
+});
 ```
-##### recommender.getTopCFRecommendations(`ratings`, `rowIndex`, `limit`)
+##### recommender.getTopCFRecommendations(`ratings`, `rowIndex`, `limit`, [`callback`])
 ###### Arguments
 * `ratings` - A two dimensional array with numbers representing the ratings. *(Required)*
 * `rowIndex` - An integer with the index of the target row for prediction. *(Required)*
 * `limit` - An integer with the max number of recommendations to be returned. *(Required)*
+* `callback` - A function with callback. *(optional)*
 ###### Returns
 An array of objects. Each object contains the item id and the predicted rating. The array is sorted by rating.
 ###### Examples
@@ -294,15 +319,16 @@ var ratings = [
     [ 3, 0, 0, 0, 0, 0, 3 ]
 ];
 // We are getting the top recommendations for the first user.
-var recommendations = recommender.getTopCFRecommendations(ratings, 0, 100);
-console.log(recommendations);
-/*
-[
-  { itemId: 1, rating: 5 },
-  { itemId: 5, rating: 5 },
-  { itemId: 2, rating: 4 }
-]
-*/
+recommender.getTopCFRecommendations(ratings, 0, 100, (recommendations) => {
+    console.log(recommendations);
+    /*
+    [
+      { itemId: 1, rating: 5 },
+      { itemId: 5, rating: 5 },
+      { itemId: 2, rating: 4 }
+    ]
+    */
+});
 ```
 ### Run examples and benchmarks
 - Clone the repo.

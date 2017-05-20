@@ -18,7 +18,7 @@ var run = bench([
     function tfidf(done) {
         var weights = recommender.tfidf(longDocumentPath, longDocumentsPath);
         var recommendations = recommender.recommend();
-        var sortedDocs = recommender.getSortedDocs();
+        var sortedDocs = recommender.getSortedDocs(recommendations);
         done();
     },
     function ratingPrediction(done) {
