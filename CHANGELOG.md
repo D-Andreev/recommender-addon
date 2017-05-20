@@ -30,3 +30,6 @@
 
 ## 1.4.1
 - Pass recommender instance to workers.
+
+## 1.4.2
+- Fix recommend function.
