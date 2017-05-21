@@ -154,7 +154,9 @@ double Recommender::getGlobalBaselineRatingPrediction(vector<vector<double>> &ra
 	double userMeanRating = Utils::getRowMean(ratings[rowIndex]);
 	double itemMeanRating = Utils::getColMean(ratings, colIndex);
 
-	return fabs(meanRating + (itemMeanRating - meanRating) + (userMeanRating - meanRating));
+	double result = fabs(meanRating + (itemMeanRating - meanRating) + (userMeanRating - meanRating));
+	if (isnan(result)) return 0;
+	return result;
 }
 
 vector<pair<int, double>> Recommender::getTopCFRecommendations(vector<vector<double>> &ratings, int rowIndex, int limit) {
@@ -178,6 +180,8 @@ vector<pair<int, double>> Recommender::getTopCFRecommendations(vector<vector<dou
 		double predictedRating = ratingsSum / similaritiesSum;
 		if (predictedRating > 0) recommendations.push_back(make_pair(i, predictedRating));
 	}
+
+	if (!recommendations.size()) return recommendations;
 
 	struct compareRecommendations {
 		inline bool operator() (const pair<int, double>& a, const pair<int, double>& b) {

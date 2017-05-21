@@ -5,7 +5,8 @@
   "main": "./build/Release/recommender",
   "scripts": {
     "pretest": "cd ./demo && npm i",
-    "test": "cd ./demo && mocha ./tests.js"
+    "test": "cd ./demo && mocha ./tests.js",
+    "clear:demo": "rm -rf ./demo/node_modules"
   },
   "gypfile": true,
   "author": "Dimitar Andreev <d.andreev90@gmail.com>",
