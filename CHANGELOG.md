@@ -39,3 +39,7 @@
 
 ## 2.0.1
 - Add tests for `tfidf`.
+
+## 2.0.2
+- Add more tests.
+- Separate methods for parsing parameters and convert between v8 types and c++ types.
