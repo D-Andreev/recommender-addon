@@ -1,7 +1,4 @@
-#include <iostream>
-#include <fstream>
 #include <nan.h>
-#include<string>
 #include "include/recommender.h"
 #include "src/workers/CollaborativeFilteringWorker.cpp"
 #include "src/workers/GlobalBaselineWorker.cpp"
