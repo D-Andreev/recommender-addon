@@ -9,9 +9,8 @@
 using namespace Nan;
 using namespace v8;
 
-Recommender r;
-
 NAN_METHOD(TfIdf) {
+	Recommender r;
 	if (!info[0]->IsString()) Nan::ThrowError("Invalid params");
 	if (info[1]->IsString()) {
 		// Documents file path is passed
@@ -94,6 +93,7 @@ NAN_METHOD(TfIdf) {
 }
 
 NAN_METHOD(GetRatingPrediction) {
+	Recommender r;
 	if (!info[0]->IsArray() || !info[1]->IsInt32() || !info[2]->IsInt32()) {
 		Nan::ThrowError("Invalid params");
 	}
@@ -130,6 +130,7 @@ NAN_METHOD(GetRatingPrediction) {
 }
 
 NAN_METHOD(GetGlobalBaselineRatingPrediction) {
+	Recommender r;
 	if (!info[0]->IsArray() || !info[1]->IsInt32() || !info[2]->IsInt32()) {
 		Nan::ThrowError("Invalid params");
 	}
@@ -168,6 +169,7 @@ NAN_METHOD(GetGlobalBaselineRatingPrediction) {
 }
 
 NAN_METHOD(GetTopCFRecommendations) {
+	Recommender r;
 	if (!info[0]->IsArray() || !info[1]->IsInt32()) {
 		Nan::ThrowError("Invalid params");
 	}
