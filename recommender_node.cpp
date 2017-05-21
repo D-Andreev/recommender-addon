@@ -236,7 +236,7 @@ NAN_METHOD(GetTopCFRecommendations) {
 	int limit = -1;
 	if (info[2]->IntegerValue()) limit = info[2]->IntegerValue();
 
-	if (rowIndex < 0 || rowIndex > ratings.size()) {
+	if (rowIndex < 0 || rowIndex > (int)ratings.size()) {
 		if (info[2]->IsFunction()) return callCallbackWithEmptyArray(2, info); 
 		else if (info[3]->IsFunction()) return callCallbackWithEmptyArray(3, info);
 		else return info.GetReturnValue().Set(New<v8::Array>());
