@@ -6,6 +6,7 @@
   "scripts": {
     "pretest": "cd ./demo && npm i",
     "test": "cd ./demo && mocha ./tests.js",
+    "benchmarks": "cd ./demo && npm i && node benchmarks.js",
     "clear:demo": "rm -rf ./demo/node_modules"
   },
   "gypfile": true,
