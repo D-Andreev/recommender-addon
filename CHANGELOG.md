@@ -36,3 +36,6 @@
 
 ## 2.0.0
 - Deprecate `recommend` and `getSortedDocs` and use only `tfidf`
+
+## 2.0.1
+- Add tests for `tfidf`.
