@@ -6,6 +6,20 @@ var chai = require('chai');
 var expect = chai.expect;
 var r = require('recommender');
 
+const LONG_TIMEOUT = 30000;
+function generateMatrix(rows, cols) {
+    let matrix = [];
+    for (let i = 0; i < rows; i++) {
+        let row = [];
+        for (let j = 0; j < cols; j++) {
+            row.push(Math.floor(Math.random() * (5 - 1 + 1)) + 1);
+        }
+        matrix.push(row);
+    }
+
+    return matrix;
+}
+
 describe('Recommender', () => {
     context('tfidf', () => {
         beforeEach(() => {
@@ -160,12 +174,356 @@ describe('Recommender', () => {
         });
 
         context('when correct params are sent', () => {
+            it('returns correct result', () => {
+                let ratingPrediction = r.getRatingPrediction(this.ratings, this.row, this.col);
+                expect(ratingPrediction).to.eql(this.expectedRatingPrediction);
+            });
 
+            describe('sparse matrix', () => {
+                it('returns correct result', () => {
+                    let ratingPrediction = r.getRatingPrediction([
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0]
+                    ], this.row, this.col);
+                    expect(ratingPrediction).to.eql(0);
+                });
+            });
+
+            describe('medium matrix', () => {
+                it('returns correct result', (done) => {
+                    let ratingPrediction = r.getRatingPrediction(generateMatrix(5000, 5000), this.row, this.col);
+                    expect(ratingPrediction >= 0).to.be.true;
+                    done();
+                }).timeout(LONG_TIMEOUT);
+            });
+
+            describe('large matrix', () => {
+                it('returns correct result', (done) => {
+                    let ratings = generateMatrix(300, 100000);
+                    let ratingPrediction = r.getRatingPrediction(ratings, this.row, this.col);
+                    expect(ratingPrediction >= 0).to.be.true;
+                    done();
+                }).timeout(LONG_TIMEOUT);
+            });
+
+            describe('async', () => {
+                it('returns correct result', (done) => {
+                    let $this = this;
+                    r.getRatingPrediction(this.ratings, this.row, this.col, (ratingPrediction) => {
+                        expect(ratingPrediction).to.eql($this.expectedRatingPrediction);
+                        done();
+                    });
+                }).timeout(LONG_TIMEOUT);
+            });
         });
 
 
         context('when invalid params are sent', () => {
-            
+            describe('when ratings are invalid', () => {
+                it('return 0', () => {
+                    let ratingPrediction = r.getRatingPrediction(false, this.row, this.col);
+                    expect(ratingPrediction).to.eql(0);
+                });
+
+                it('return 0', (done) => {
+                    r.getRatingPrediction(false, this.row, this.col, (ratingPrediction) => {
+                        expect(ratingPrediction).to.eql(0);
+                        done();
+                    });
+                }).timeout(LONG_TIMEOUT);
+            });
+
+            describe('when row is invalid', () => {
+                it('return 0', () => {
+                    let ratingPrediction = r.getRatingPrediction(this.ratings, -1, this.col);
+                    expect(ratingPrediction).to.eql(0);
+                });
+
+                it('return 0', () => {
+                    let ratingPrediction = r.getRatingPrediction(this.ratings, 123123, this.col);
+                    expect(ratingPrediction).to.eql(0);
+                });
+
+                it('return 0', () => {
+                    let ratingPrediction = r.getRatingPrediction(this.ratings, null, this.col);
+                    expect(ratingPrediction).to.eql(0);
+                });
+
+                it('return 0', (done) => {
+                    r.getRatingPrediction(this.ratings, null, this.col, (ratingPrediction) => {
+                        expect(ratingPrediction).to.eql(0);
+                        done();
+                    });
+                });
+            });
+
+            describe('when col is invalid', () => {
+                it('return 0', () => {
+                    let ratingPrediction = r.getRatingPrediction(this.ratings, this.row, -1);
+                    expect(ratingPrediction).to.eql(0);
+                });
+
+                it('return 0', () => {
+                    let ratingPrediction = r.getRatingPrediction(this.ratings, this.row, 1231231);
+                    expect(ratingPrediction).to.eql(0);
+                });
+
+                it('return 0', () => {
+                    let ratingPrediction = r.getRatingPrediction(this.ratings, this.row);
+                    expect(ratingPrediction).to.eql(0);
+                });
+
+                it('return 0', (done) => {
+                    r.getRatingPrediction(this.ratings, this.row, null, (ratingPrediction) => {
+                        expect(ratingPrediction).to.eql(0);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+
+    context('getGlobalBaselineRatingPrediction', () => {
+        beforeEach(() => {
+            this.ratings = [
+                [4, 0, 0, 1, 1, 0, 0],
+                [5, 5, 4, 0, 0, 0, 0],
+                [0, 0, 0, 2, 4, 5, 0],
+                [3, 0, 0, 0, 0, 0, 3]
+            ];
+            this.row = 0;
+            this.col = 4;
+
+            this.expectedRatingPrediction = 1.1363636363636362;
+        });
+
+        context('when correct params are sent', () => {
+            it('returns correct result', () => {
+                let ratingPrediction = r.getGlobalBaselineRatingPrediction(this.ratings, this.row, this.col);
+                expect(ratingPrediction).to.eql(this.expectedRatingPrediction);
+            });
+
+            describe('sparse matrix', () => {
+                it('returns correct result', () => {
+                    let ratingPrediction = r.getGlobalBaselineRatingPrediction([
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0]
+                    ], this.row, this.col);
+                    
+                    expect(ratingPrediction).to.eql(0);
+                });
+            });
+
+            describe('medium matrix', () => {
+                it('returns correct result', (done) => {
+                    let ratingPrediction = r.getGlobalBaselineRatingPrediction(generateMatrix(5000, 5000), this.row, this.col);
+                    expect(ratingPrediction >= 0).to.be.true;
+                    done();
+                }).timeout(LONG_TIMEOUT);
+            });
+
+            describe('large matrix', () => {
+                it('returns correct result', (done) => {
+                    let ratings = generateMatrix(300, 100000);
+                    let ratingPrediction = r.getGlobalBaselineRatingPrediction(ratings, this.row, this.col);
+                    expect(ratingPrediction >= 0).to.be.true;
+                    done();
+                }).timeout(LONG_TIMEOUT);
+            });
+
+            describe('async', () => {
+                it('returns correct result', (done) => {
+                    let $this = this;
+                    r.getGlobalBaselineRatingPrediction(this.ratings, this.row, this.col, (ratingPrediction) => {
+                        expect(ratingPrediction).to.eql($this.expectedRatingPrediction);
+                        done();
+                    });
+                }).timeout(LONG_TIMEOUT);
+            });
+        });
+
+
+        context('when invalid params are sent', () => {
+            describe('when ratings are invalid', () => {
+                it('return 0', () => {
+                    let ratingPrediction = r.getGlobalBaselineRatingPrediction(false, this.row, this.col);
+                    expect(ratingPrediction).to.eql(0);
+                });
+
+                it('return 0', (done) => {
+                    r.getGlobalBaselineRatingPrediction(false, this.row, this.col, (ratingPrediction) => {
+                        expect(ratingPrediction).to.eql(0);
+                        done();
+                    });
+                }).timeout(LONG_TIMEOUT);
+            });
+
+            describe('when row is invalid', () => {
+                it('return 0', () => {
+                    let ratingPrediction = r.getGlobalBaselineRatingPrediction(this.ratings, -1, this.col);
+                    expect(ratingPrediction).to.eql(0);
+                });
+
+                it('return 0', () => {
+                    let ratingPrediction = r.getGlobalBaselineRatingPrediction(this.ratings, 123123, this.col);
+                    expect(ratingPrediction).to.eql(0);
+                });
+
+                it('return 0', () => {
+                    let ratingPrediction = r.getGlobalBaselineRatingPrediction(this.ratings, null, this.col);
+                    expect(ratingPrediction).to.eql(0);
+                });
+
+                it('return 0', (done) => {
+                    r.getGlobalBaselineRatingPrediction(this.ratings, null, this.col, (ratingPrediction) => {
+                        expect(ratingPrediction).to.eql(0);
+                        done();
+                    });
+                });
+            });
+
+            describe('when col is invalid', () => {
+                it('return 0', () => {
+                    let ratingPrediction = r.getGlobalBaselineRatingPrediction(this.ratings, this.row, -1);
+                    expect(ratingPrediction).to.eql(0);
+                });
+
+                it('return 0', () => {
+                    let ratingPrediction = r.getGlobalBaselineRatingPrediction(this.ratings, this.row, 1231231);
+                    expect(ratingPrediction).to.eql(0);
+                });
+
+                it('return 0', () => {
+                    let ratingPrediction = r.getGlobalBaselineRatingPrediction(this.ratings, this.row);
+                    expect(ratingPrediction).to.eql(0);
+                });
+
+                it('return 0', (done) => {
+                    r.getGlobalBaselineRatingPrediction(this.ratings, this.row, null, (ratingPrediction) => {
+                        expect(ratingPrediction).to.eql(0);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+
+    context('getTopCFRecommendations', () => {
+        beforeEach(() => {
+            this.ratings = [
+                [4, 0, 0, 1, 1, 0, 0],
+                [5, 5, 4, 0, 0, 0, 0],
+                [0, 0, 0, 2, 4, 5, 0],
+                [3, 0, 0, 0, 0, 0, 3]
+            ];
+            this.row = 0;
+            this.limit = 100;
+
+            this.expectedTopRecommendations = [
+              { itemId: 1, rating: 5 },
+              { itemId: 5, rating: 5 },
+              { itemId: 2, rating: 4 }
+            ];
+        });
+
+        context('when correct params are sent', () => {
+            it('returns correct result', () => {
+                let recommendations = r.getTopCFRecommendations(this.ratings, this.row, this.limit);
+                expect(recommendations).to.eql(this.expectedTopRecommendations);
+            });
+
+            context('sparse matrix', () => {
+                let ratings = [
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0]
+                ];
+                let recommendations = r.getTopCFRecommendations(this.ratings, this.row, this.limit);
+                expect(recommendations).to.eql([]);
+            });
+
+            describe('medium matrix', () => {
+                it('returns correct result', (done) => {
+                    let recommendations = r.getTopCFRecommendations(generateMatrix(5000, 5000), this.row, this.limit);
+                    expect(recommendations.length >= 0).to.be.true;
+                    done();
+                }).timeout(LONG_TIMEOUT);
+            });
+
+            describe('large matrix', () => {
+                it('returns correct result', (done) => {
+                    let recommendations = r.getTopCFRecommendations(generateMatrix(300, 10000), this.row, this.limit);
+                    expect(recommendations.length >= 0).to.be.true;
+                    done();
+                }).timeout(LONG_TIMEOUT);
+            });
+
+            describe('async', () => {
+                it('returns correct result', (done) => {
+                    let $this = this;
+                    r.getTopCFRecommendations(this.ratings, this.row, this.limit, (recommendations) => {
+                        expect(recommendations).to.eql($this.expectedTopRecommendations);
+                        done();
+                    });
+                }).timeout(LONG_TIMEOUT);
+            });
+
+            describe('with custom limit', () => {
+                it('returns correct result within limit', (done) => {
+                    let $this = this;
+                    r.getTopCFRecommendations(this.ratings, this.row, 3, (recommendations) => {
+                        expect(recommendations.length === 3).to.be.true;
+                        done();
+                    });
+                }).timeout(LONG_TIMEOUT);
+            });
+        });
+
+        context('when invalid params are sent', () => {
+            describe('when ratings are invalid', () => {
+                it('return 0', () => {
+                    let recommendations = r.getTopCFRecommendations(false, this.row, this.limit);
+                    expect(recommendations).to.eql([]);
+                });
+
+                it('return 0', (done) => {
+                    r.getTopCFRecommendations(false, this.row, this.limit, (recommendations) => {
+                        expect(recommendations).to.eql([]);
+                        done();
+                    });
+                }).timeout(LONG_TIMEOUT);
+            });
+
+            describe('when row is invalid', () => {
+                it('return 0', () => {
+                    let recommendations = r.getTopCFRecommendations(this.ratings, -1, this.limit);
+                    expect(recommendations).to.eql([]);
+                });
+
+                it('return 0', () => {
+                    let recommendations = r.getTopCFRecommendations(this.ratings, 123123, this.limit);
+                    expect(recommendations).to.eql([]);
+                });
+
+                it('return 0', () => {
+                    let recommendations = r.getTopCFRecommendations(this.ratings, null, this.limit);
+                    expect(recommendations).to.eql([]);
+                });
+
+                it('return 0', (done) => {
+                    r.getTopCFRecommendations(this.ratings, null, this.limit, (recommendations) => {
+                        expect(recommendations).to.eql([]);
+                        done();
+                    });
+                });
+            });
         });
     });
 });
