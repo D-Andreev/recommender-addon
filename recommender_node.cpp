@@ -75,8 +75,8 @@ vector<vector<double>> getMatrixParameter(int index, NAN_METHOD_ARGS_TYPE info) 
 }
 
 bool isOutsideMatrix(vector<vector<double>> matrix, int rowIndex, int colIndex) {
-	return rowIndex < 0 || rowIndex >= matrix.size() ||
-		colIndex < 0 || (matrix.size() > 0 && colIndex >= matrix[0].size());
+	return rowIndex < 0 || rowIndex >= (int)matrix.size() ||
+		colIndex < 0 || (matrix.size() > 0 && colIndex >= (int)matrix[0].size());
 }
 
 void tfidfFilePaths(Recommender r, NAN_METHOD_ARGS_TYPE info, bool useStopWords) {
@@ -203,7 +203,6 @@ NAN_METHOD(GetGlobalBaselineRatingPrediction) {
 	vector<vector<double>> ratings = getMatrixParameter(0, info);
 	int rowIndex = info[1]->IntegerValue();
 	int colIndex = info[2]->IntegerValue();
-	Local<Array> array = Local<Array>::Cast(info[0]);
 
 	if (isOutsideMatrix(ratings, rowIndex, colIndex)) {
 		if (info[3]->IsFunction()) return callCallbackWithInt(3, info, 0);
@@ -237,7 +236,7 @@ NAN_METHOD(GetTopCFRecommendations) {
 	int limit = -1;
 	if (info[2]->IntegerValue()) limit = info[2]->IntegerValue();
 
-	if (rowIndex < 0 || rowIndex > ratings.size()) {
+	if (rowIndex < 0 || rowIndex > (int)ratings.size()) {
 		if (info[2]->IsFunction()) return callCallbackWithEmptyArray(2, info); 
 		else if (info[3]->IsFunction()) return callCallbackWithEmptyArray(3, info);
 		else return info.GetReturnValue().Set(New<v8::Array>());

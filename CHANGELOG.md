@@ -47,3 +47,6 @@
 ## 2.0.3
 - Refactor recommener_node, separate methods.
 - Add tests.
+
+## 2.0.4
+- Fix build warnings.
