@@ -43,15 +43,6 @@ console.log(sortedDocs);
 assert.deepEqual(sortedDocs, expectedSortedDocs);
 
 // Colaborative filtering example
-
-try {
-    let asd = recommender.getRatingPrediction(false, 0, 4);
-    console.log('asdasd', asd);
-} catch (e) {
-    console.log('eee', e);
-    process.exit();
-}
-process.exit();
 var userRatings = [
     [ 1, 0, 3, 0, 0, 5, 0, 0, 5, 0, 4, 0 ],
 	[ 0, 0, 5, 4, 0, 0, 4, 0, 0, 2, 1, 3 ],
