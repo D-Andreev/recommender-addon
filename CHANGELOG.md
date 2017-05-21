@@ -43,3 +43,7 @@
 ## 2.0.2
 - Add more tests.
 - Separate methods for parsing parameters and convert between v8 types and c++ types.
+
+## 2.0.3
+- Refactor recommener_node, separate methods.
+- Add tests.

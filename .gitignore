@@ -258,3 +258,4 @@ paket-files/
 Debug/
 demo/node_modules/
 build/
+*.log
