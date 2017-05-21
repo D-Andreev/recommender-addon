@@ -1,4 +1,7 @@
+#include <iostream>
+#include <fstream>
 #include <nan.h>
+#include<string>
 #include "include/recommender.h"
 #include "src/workers/CollaborativeFilteringWorker.cpp"
 #include "src/workers/GlobalBaselineWorker.cpp"
@@ -18,6 +21,7 @@ string getStringParameter(int index, NAN_METHOD_ARGS_TYPE info) {
 
 Local<Array> convertArrayToV8Array(vector<string> arr, int length) {
 	Local<Array> result = New<v8::Array>(length);
+
 	for (int i = 0; i < length; i++) {
 		Nan::Set(result, i, Nan::New<String>(arr[i].c_str()).ToLocalChecked());
 	}
@@ -28,6 +32,7 @@ Local<Array> convertArrayToV8Array(vector<string> arr, int length) {
 vector<string> castV8ArrayToArray(int index, NAN_METHOD_ARGS_TYPE info) {
 	vector<string> documents;
 	Local<Array> inputDocuments = Local<Array>::Cast(info[index]);
+
 	for (unsigned i = 0; i < inputDocuments->Length(); i++) {
 		if (Nan::Has(inputDocuments, i).FromJust()) {
 			v8::String::Utf8Value doc(Nan::Get(inputDocuments, i).ToLocalChecked()->ToString());
@@ -39,9 +44,9 @@ vector<string> castV8ArrayToArray(int index, NAN_METHOD_ARGS_TYPE info) {
 	return documents;
 }
 
-void callCallbackWithZero(int index, NAN_METHOD_ARGS_TYPE info) {
+void callCallbackWithInt(int index, NAN_METHOD_ARGS_TYPE info, int result) {
 	Callback *callback = new Callback(info[index].As<Function>());
-	Local<Value> argv[] = { Nan::New(0) };
+	Local<Value> argv[] = { Nan::New(result) };
 	callback->Call(1, argv);
 }
 
@@ -73,64 +78,89 @@ vector<vector<double>> getMatrixParameter(int index, NAN_METHOD_ARGS_TYPE info) 
 }
 
 bool isOutsideMatrix(vector<vector<double>> matrix, int rowIndex, int colIndex) {
-	return rowIndex < 0 || rowIndex > matrix.size() || colIndex < 0 ||
-		(matrix.size() > 0 && colIndex > matrix[0].size());
+	return rowIndex < 0 || rowIndex >= matrix.size() ||
+		colIndex < 0 || (matrix.size() > 0 && colIndex >= matrix[0].size());
+}
+
+void tfidfFilePaths(Recommender r, NAN_METHOD_ARGS_TYPE info, bool useStopWords) {
+	string documentFilePath = getStringParameter(0, info);
+	string documentsFilePath = getStringParameter(1, info);
+
+	if (info[2]->IsFunction()) {
+		// Async
+		Callback *callback = new Callback(info[2].As<Function>());
+		AsyncQueueWorker(
+			new TfIdfFilesWorker(callback, r, documentFilePath, documentsFilePath, useStopWords)
+		);
+	} else if (info[3]->IsFunction()) {
+		// Async
+		Callback *callback = new Callback(info[3].As<Function>());
+		AsyncQueueWorker(new TfIdfFilesWorker(
+			callback, r, documentFilePath, documentsFilePath, useStopWords)
+		);
+	} else {
+		// Sync
+		map<string, double> weights = r.tfidf(documentFilePath, documentsFilePath, useStopWords);
+		vector<double> recs = r.recommend(weights);
+		vector<string> sortedDocuments = r.getSortedDocuments(recs);
+		Local<Array> result = convertArrayToV8Array(sortedDocuments, sortedDocuments.size());
+
+		info.GetReturnValue().Set(result);
+	}
+}
+
+void tfidfArrays(Recommender r, NAN_METHOD_ARGS_TYPE info, bool useStopWords) {
+	string query = getStringParameter(0, info);
+	vector<string> documents = castV8ArrayToArray(1, info);
+
+	if (info[2]->IsFunction()) {
+		// Async
+		Callback *callback = new Callback(info[2].As<Function>());
+		AsyncQueueWorker(new TfIdfArraysWorker(callback, r, query, documents, useStopWords));
+	} else if (info[3]->IsFunction()) {
+		// Async
+		Callback *callback = new Callback(info[3].As<Function>());
+		AsyncQueueWorker(new TfIdfArraysWorker(callback, r, query, documents, useStopWords));
+	} else {
+		// Sync
+		r.tfidf(query, documents, useStopWords);
+		vector<double> recs = r.recommend(r.weights);
+		vector<string> sortedDocuments = r.getSortedDocuments(recs);
+		Local<Array> result = convertArrayToV8Array(sortedDocuments, sortedDocuments.size());
+
+		info.GetReturnValue().Set(result);
+	}
+}
+
+Local<Array> convertVectorOfPairsToV8Array(vector<pair<int, double>>& recommendations) {
+	Local<Array> result = New<v8::Array>();
+
+	for (unsigned i = 0; i < recommendations.size(); i++) {
+		Local<Object> obj = Nan::New<Object>();
+		Local<String> itemIdProp = Nan::New<String>("itemId").ToLocalChecked();
+		Local<String> ratingProp = Nan::New<String>("rating").ToLocalChecked();
+		obj->Set(itemIdProp, Nan::New<Number>(recommendations[i].first));
+		obj->Set(ratingProp, Nan::New<Number>(recommendations[i].second));
+
+		Nan::Set(result, i, obj);
+	}
+
+	return result;
 }
 
 NAN_METHOD(TfIdf) {
 	Recommender r;
-	if (!info[0]->IsString()) Nan::ThrowError("Invalid params");
+	if (!info[0]->IsString() || info[0]->ToString().IsEmpty()) Nan::ThrowError("Invalid query passed");
+
 	bool useStopWords = false;
 	if (info[2]->IsBoolean() && info[2]->BooleanValue()) {
 		useStopWords = info[2]->BooleanValue();
 	}
+
 	if (info[1]->IsString()) {
-		// Documents file path is passed
-		string documentFilePath = getStringParameter(0, info);
-		string documentsFilePath = getStringParameter(1, info);
-
-		if (info[2]->IsFunction()) {
-			// Async
-			Callback *callback = new Callback(info[2].As<Function>());
-			AsyncQueueWorker(
-				new TfIdfFilesWorker(callback, r, documentFilePath, documentsFilePath, useStopWords)
-			);
-		} else if (info[3]->IsFunction()) {
-			// Async
-			Callback *callback = new Callback(info[3].As<Function>());
-			AsyncQueueWorker(new TfIdfFilesWorker(
-				callback, r, documentFilePath, documentsFilePath, useStopWords)
-			);
-		} else {
-			// Sync
-			map<string, double> weights = r.tfidf(documentFilePath, documentsFilePath, useStopWords);
-			vector<double> recs = r.recommend(weights);
-			vector<string> sortedDocuments = r.getSortedDocuments(recs);
-			Local<Array> result = convertArrayToV8Array(sortedDocuments, sortedDocuments.size());
-
-			info.GetReturnValue().Set(result);
-		}
+		tfidfFilePaths(r, info, useStopWords);
 	} else if (info[1]->IsArray()) {
-		// Arrays are passed
-		string query = getStringParameter(0, info);
-		vector<string> documents = castV8ArrayToArray(1, info);
-		if (info[2]->IsFunction()) {
-			// Async
-			Callback *callback = new Callback(info[2].As<Function>());
-			AsyncQueueWorker(new TfIdfArraysWorker(callback, r, query, documents, useStopWords));
-		} else if (info[3]->IsFunction()) {
-			// Async
-			Callback *callback = new Callback(info[3].As<Function>());
-			AsyncQueueWorker(new TfIdfArraysWorker(callback, r, query, documents, useStopWords));
-		} else {
-			// Sync
-			r.tfidf(query, documents, useStopWords);
-			vector<double> recs = r.recommend(r.weights);
-			vector<string> sortedDocuments = r.getSortedDocuments(recs);
-			Local<Array> result = convertArrayToV8Array(sortedDocuments, sortedDocuments.size());
-
-			info.GetReturnValue().Set(result);
-		}
+		tfidfArrays(r, info, useStopWords);
 	} else {
 		Nan::ThrowError("Invalid params");
 	}
@@ -138,8 +168,8 @@ NAN_METHOD(TfIdf) {
 
 NAN_METHOD(GetRatingPrediction) {
 	Recommender r;
-	if (!info[0]->IsArray() || !info[1]->IsInt32() || !info[2]->IsInt32()) {
-		if (info[3]->IsFunction()) return callCallbackWithZero(3, info);
+	if (!info[0]->IsArray() || !info[1]->IsNumber() || !info[2]->IsNumber()) {
+		if (info[3]->IsFunction()) return callCallbackWithInt(3, info, 0);
 		else return info.GetReturnValue().Set(0);
 	}
 
@@ -148,9 +178,10 @@ NAN_METHOD(GetRatingPrediction) {
 	int colIndex = info[2]->IntegerValue();
 	
 	if (isOutsideMatrix(ratings, rowIndex, colIndex)) {
-		if (info[3]->IsFunction()) return callCallbackWithZero(3, info);
+		if (info[3]->IsFunction()) return callCallbackWithInt(3, info, 0);
 		else return info.GetReturnValue().Set(0);
 	}
+
 	if (info[3]->IsFunction()) {
 		// Async
 		Callback *callback = new Callback(info[3].As<Function>());
@@ -159,14 +190,16 @@ NAN_METHOD(GetRatingPrediction) {
 		// Sync
 		double predictedRating = r.getRatingPrediction(ratings, rowIndex, colIndex);
 		Local<Number> result = Nan::New(predictedRating);
+
 		info.GetReturnValue().Set(result);
 	}
 }
 
 NAN_METHOD(GetGlobalBaselineRatingPrediction) {
 	Recommender r;
-	if (!info[0]->IsArray() || !info[1]->IsInt32() || !info[2]->IsInt32()) {
-		if (info[3]->IsFunction()) return callCallbackWithZero(3, info);
+
+	if (!info[0]->IsArray() || !info[1]->IsNumber() || !info[2]->IsNumber()) {
+		if (info[3]->IsFunction()) return callCallbackWithInt(3, info, 0);
 		else return info.GetReturnValue().Set(0);
 	}
 
@@ -176,7 +209,7 @@ NAN_METHOD(GetGlobalBaselineRatingPrediction) {
 	Local<Array> array = Local<Array>::Cast(info[0]);
 
 	if (isOutsideMatrix(ratings, rowIndex, colIndex)) {
-		if (info[3]->IsFunction()) return callCallbackWithZero(3, info);
+		if (info[3]->IsFunction()) return callCallbackWithInt(3, info, 0);
 		else return info.GetReturnValue().Set(0);
 	}
 
@@ -195,8 +228,8 @@ NAN_METHOD(GetGlobalBaselineRatingPrediction) {
 
 NAN_METHOD(GetTopCFRecommendations) {
 	Recommender r;
-	if (!info[0]->IsArray() || !info[1]->IsInt32()) {
-		// FIX THIS
+
+	if (!info[0]->IsArray() || !info[1]->IsNumber()) {
 		if (info[2]->IsFunction()) return callCallbackWithEmptyArray(2, info);
 		else if (info[3]->IsFunction()) return callCallbackWithEmptyArray(3, info);
 		else return info.GetReturnValue().Set(New<v8::Array>());
@@ -218,22 +251,14 @@ NAN_METHOD(GetTopCFRecommendations) {
 		Callback *callback = new Callback(info[2].As<Function>());
 		AsyncQueueWorker(new TopCFRecommendationsWorker(callback, r, ratings, rowIndex, limit));
 	} else if (info[3]->IsFunction()) {
+		// Async
 		Callback *callback = new Callback(info[3].As<Function>());
 		AsyncQueueWorker(new TopCFRecommendationsWorker(callback, r, ratings, rowIndex, limit));
 	} else {
 		// Sync
 		vector<pair<int, double>> recommendations = r.getTopCFRecommendations(ratings, rowIndex, limit);
-		Local<Array> result = New<v8::Array>();
-		for (unsigned i = 0; i < recommendations.size(); i++) {
-			Local<Object> obj = Nan::New<Object>();
-			Local<String> itemIdProp = Nan::New<String>("itemId").ToLocalChecked();
-			Local<String> ratingProp = Nan::New<String>("rating").ToLocalChecked();
-			obj->Set(itemIdProp, Nan::New<Number>(recommendations[i].first));
-			obj->Set(ratingProp, Nan::New<Number>(recommendations[i].second));
-
-			Nan::Set(result, i, obj);
-		}
-
+		Local<Array> result = convertVectorOfPairsToV8Array(recommendations);
+		
 		info.GetReturnValue().Set(result);
 	}
 }
