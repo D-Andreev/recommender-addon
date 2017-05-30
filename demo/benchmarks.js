@@ -33,7 +33,7 @@ var run = bench([
     },
     function getTopCFRecommendations(done) {
         recommender.getTopCFRecommendations(userRatings, 0, (recommendations) => {
-            assert.equal(recommendations.length, 3);
+            assert.equal(recommendations.length, 4);
             done();
         });
     }
