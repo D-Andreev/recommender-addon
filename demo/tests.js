@@ -5,8 +5,9 @@ var mocha = require('mocha');
 var chai = require('chai');
 var expect = chai.expect;
 var r = require('recommender');
+var largeRatingsTable = require('./resources/large_ratings_table.json');
 
-const LONG_TIMEOUT = 60000;
+const LONG_TIMEOUT = 1.2e+6; // 20 minutes
 function generateMatrix(rows, cols) {
     let matrix = [];
     for (let i = 0; i < rows; i++) {
@@ -279,7 +280,7 @@ describe('Recommender', () => {
                         });
                     });
                 });
-            })
+            });
 
             describe('sparse matrix', () => {
                 beforeEach(() => {
@@ -340,6 +341,24 @@ describe('Recommender', () => {
                         let ratings = generateMatrix(300, 100000);
                         r.getRatingPrediction(ratings, this.row, this.col, (ratingPrediction) => {
                             expect(ratingPrediction > 0).to.be.true;
+                            done();
+                        });
+                    }).timeout(LONG_TIMEOUT);
+                });
+            });
+
+            describe('very large matrix', () => {
+                context('sync', () => {
+                    it('returns the correct result', () => {
+                        let ratingPrediction = r.getRatingPrediction(largeRatingsTable, this.row, 31);
+                        expect(ratingPrediction).to.eql(2.9999999999999996);
+                    }).timeout(LONG_TIMEOUT);
+                });
+
+                context('async', () => {
+                    it('returns correct result', (done) => {
+                        r.getRatingPrediction(largeRatingsTable, this.row, 31, (ratingPrediction) => {
+                            expect(ratingPrediction).to.eql(2.9999999999999996);
                             done();
                         });
                     }).timeout(LONG_TIMEOUT);
@@ -579,6 +598,24 @@ describe('Recommender', () => {
                     }).timeout(LONG_TIMEOUT);
                 });
             });
+
+            describe('very large matrix', () => {
+                context('sync', () => {
+                    it('returns correct result', () => {
+                        let ratingPrediction = r.getGlobalBaselineRatingPrediction(largeRatingsTable, this.row, 31);
+                        expect(ratingPrediction).to.eql(3.0066998569990995);
+                    }).timeout(LONG_TIMEOUT);
+                });
+
+                context('async', () => {
+                    it('returns correct result', (done) => {
+                        r.getGlobalBaselineRatingPrediction(largeRatingsTable, this.row, 31, (ratingPrediction) => {
+                            expect(ratingPrediction).to.eql(3.0066998569990995);
+                            done();
+                        });
+                    }).timeout(LONG_TIMEOUT);
+                });
+            });
         });
 
 
@@ -724,9 +761,10 @@ describe('Recommender', () => {
             this.limit = 100;
 
             this.expectedTopRecommendations = [
-              { itemId: 1, rating: 5 },
-              { itemId: 5, rating: 5 },
-              { itemId: 2, rating: 4 }
+              { itemId: 1, rating: 4.4907920453550085 },
+              { itemId: 2, rating: 3.5926336362840074 },
+              { itemId: 5, rating: 0.5092079546449908 },
+              { itemId: 6, rating: 0 }
             ];
         });
 
@@ -806,6 +844,24 @@ describe('Recommender', () => {
                 context('async', () => {
                     it('returns correct result', (done) => {
                         r.getTopCFRecommendations(generateMatrix(300, 10000), this.row, this.limit, (recommendations) => {
+                            expect(recommendations.length > 0).to.be.true;
+                            done();
+                        });
+                    }).timeout(LONG_TIMEOUT);
+                });
+            });
+
+            describe('very large matrix', () => {
+                context('sync', () => {
+                    it('returns correct result', () => {
+                        let recommendations = r.getTopCFRecommendations(largeRatingsTable, this.row, this.limit);
+                        expect(recommendations.length > 0).to.be.true;
+                    }).timeout(LONG_TIMEOUT);
+                });
+
+                context('async', () => {
+                    it('returns correct result', (done) => {
+                        r.getTopCFRecommendations(largeRatingsTable, this.row, this.limit, (recommendations) => {
                             expect(recommendations.length > 0).to.be.true;
                             done();
                         });

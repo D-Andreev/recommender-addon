@@ -57,7 +57,7 @@ var rowIndex = 0;
 var colIndex = 4;
 var predictedRating = recommender.getRatingPrediction(userRatings, rowIndex, colIndex);
 console.log(predictedRating);
-assert.equal(predictedRating, 2.586406866934817);
+assert.equal(predictedRating, 3.329569404588411);
 
 // Colaborative filtering another example
 userRatings = [
@@ -110,9 +110,10 @@ assert.equal(predictedRating, 3.6363636363636362);
 console.log('='.repeat(50));
 console.log('Top CF Recommendations');
 var expectedTopRecommendations = [
-  { itemId: 1, rating: 5 },
-  { itemId: 5, rating: 5 },
-  { itemId: 2, rating: 4 }
+  { itemId: 1, rating: 4.4907920453550085 },
+  { itemId: 2, rating: 3.5926336362840074 },
+  { itemId: 5, rating: 0.5092079546449908 },
+  { itemId: 6, rating: 0 }
 ];
 var recommendations = recommender.getTopCFRecommendations(userRatings, 0, 100);
 console.log(recommendations);
@@ -120,6 +121,8 @@ recommendations.forEach((item, index) => {
     assert.equal(item.itemId, expectedTopRecommendations[index].itemId);
     assert.equal(item.rating, expectedTopRecommendations[index].rating);
 });
+
+
 
 // Async examples
 /*

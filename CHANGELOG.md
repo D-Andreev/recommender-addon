@@ -50,3 +50,6 @@
 
 ## 2.0.4
 - Fix build warnings.
+
+## 2.0.5
+- Improve get top cf performance.

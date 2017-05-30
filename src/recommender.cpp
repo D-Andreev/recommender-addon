@@ -37,13 +37,14 @@ map<string, double> Recommender::tfidf(string query, vector<string> documents, b
 
 	this->useStopWords = useStopWords;
 	this->document = this->splitLineToWords(query);
-	for (unsigned i = 0; i < documents.size(); i++) {
+	int totalDocumentsSize = documents.size();
+	for (int i = 0; i < totalDocumentsSize; i++) {
 		this->rawDocuments.push_back(documents[i]);
 		this->documents.push_back(splitLineToWords(documents[i]));
 	}
 
-	unsigned totalNumberOfTerms = this->document.size();
-	for (unsigned i = 0; i < totalNumberOfTerms; i++) {
+	int totalNumberOfTerms = this->document.size();
+	for (int i = 0; i < totalNumberOfTerms; i++) {
 		string currentTerm = this->document[i];
 		int numberOfTimesTermAppears = this->getNumberOfTimesTermAppears(currentTerm, this->document);
 		double tfidf = this->calculateTfIdf(numberOfTimesTermAppears, totalNumberOfTerms, currentTerm);
@@ -63,10 +64,12 @@ vector<double> Recommender::recommend(map<string, double> weights) {
 		queryVector.push_back(entry.second);
 	}
 
-	for (unsigned i = 0; i < this->documents.size(); i++) {
+	int totalDocumentsSize = this->documents.size();
+	for (int i = 0; i < totalDocumentsSize; i++) {
 		vector<double> documentVector(queryVector.size());
 		bool hasEqualTerms = false;
-		for (unsigned j = 0; j < this->documents[i].size(); j++) {
+		int documentSize = this->documents[i].size();
+		for (int j = 0; j < documentSize; j++) {
 			string currentTerm = this->documents[i][j];
 			bool queryTermExistsInDocument = false;
 			int foundIndex = 0;
@@ -83,7 +86,7 @@ vector<double> Recommender::recommend(map<string, double> weights) {
 			if (!queryTermExistsInDocument) continue;
 
 			int numberOfTimesTermAppears = this->getNumberOfTimesTermAppears(currentTerm, this->documents[i]);
-			int totalNumberOfTerms = this->documents[i].size();
+			int totalNumberOfTerms = documentSize;
 			double tfidf = this->calculateTfIdf(numberOfTimesTermAppears, totalNumberOfTerms, currentTerm);
 			documentVector[foundIndex] = tfidf;
 		}
@@ -103,15 +106,17 @@ vector<double> Recommender::recommend(map<string, double> weights) {
 
 vector<string> Recommender::getSortedDocuments(vector<double> similarities) {
 	vector<string> result;
-	if (similarities.size() == 0) return result;
+	int similaritiesSize = similarities.size();
+	if (similaritiesSize == 0) return result;
 
-	vector<unsigned> used;
-	while (result.size() < similarities.size()) {
+	vector<int> used;
+	while (result.size() < similaritiesSize) {
 		double max = -DBL_MAX;
 		int maxIndex = 0;
-		for (unsigned i = 0; i < similarities.size(); i++) {
+		for (int i = 0; i < similaritiesSize; i++) {
 			bool isUsed = false;
-			for (unsigned j = 0; j < used.size(); j++) {
+			int usedSize = used.size();
+			for (int j = 0; j < usedSize; j++) {
 				if (used[j] == i) {
 					isUsed = true;
 					break;
@@ -132,15 +137,17 @@ vector<string> Recommender::getSortedDocuments(vector<double> similarities) {
 
 double Recommender::getRatingPrediction(vector<vector<double>> &ratings, int rowIndex, int colIndex) {
 	vector<vector<double>> originalRatings;
-	for (unsigned i = 0; i < ratings.size(); i++) {
+	int ratingsSize = ratings.size();
+	for (int i = 0; i < ratingsSize; i++) {
 		originalRatings.push_back(ratings[i]);
 	}
 
 	double similaritiesSum = 0;
 	double ratingsSum = 0;
-	vector<pair<int, double>> neighbourhood = this->getNeighbourhood(rowIndex, colIndex, ratings);
-	if (!neighbourhood.size()) return 0;
-	for (unsigned i = 0; i < neighbourhood.size(); i++) {
+	vector<pair<int, double>> neighbourhood = this->getNeighbourhood(rowIndex, colIndex, ratings, originalRatings);
+	int neighbourhoodSize = neighbourhood.size();
+	if (!neighbourhoodSize) return 0;
+	for (int i = 0; i < neighbourhoodSize; i++) {
 		similaritiesSum += neighbourhood[i].second;
 		ratingsSum += originalRatings[neighbourhood[i].first][colIndex] * neighbourhood[i].second;
 	}
@@ -162,26 +169,35 @@ double Recommender::getGlobalBaselineRatingPrediction(vector<vector<double>> &ra
 vector<pair<int, double>> Recommender::getTopCFRecommendations(vector<vector<double>> &ratings, int rowIndex, int limit) {
 	vector<pair<int, double>> recommendations;
 	vector<vector<double>> originalRatings;
-	for (unsigned i = 0; i < ratings.size(); i++) {
+	int ratingsSize = ratings.size();
+	for (int i = 0; i < ratingsSize; i++) {
 		originalRatings.push_back(ratings[i]);
+		if (i == rowIndex) {
+			Utils::subtractRawMeanFromVector(ratings[rowIndex]);
+		}
 	}
 
-	for (unsigned int i = 0; i < ratings[rowIndex].size(); i++) {
+	vector<pair<int, double>> neighbourhood = this->getNeighbourhood(rowIndex, ratings, originalRatings);
+	int neighbourhoodSize = neighbourhood.size();
+	if (!neighbourhoodSize) return recommendations;
+
+	int userRowSize = ratings[rowIndex].size();
+	for (int i = 0; i < userRowSize; i++) {
 		if (ratings[rowIndex][i] != 0) continue;
+
 		double similaritiesSum = 0;
 		double ratingsSum = 0;
-		vector<pair<int, double>> neighbourhood = this->getNeighbourhood(rowIndex, i, ratings);
-		if (!neighbourhood.size()) break;
-		for (unsigned j = 0; j < neighbourhood.size(); j++) {
+		for (int j = 0; j < neighbourhoodSize; j++) {
 			similaritiesSum += neighbourhood[j].second;
 			ratingsSum += originalRatings[neighbourhood[j].first][i] * neighbourhood[j].second;
 		}
 
 		double predictedRating = ratingsSum / similaritiesSum;
-		if (predictedRating > 0) recommendations.push_back(make_pair(i, predictedRating));
+		if (!isnan(predictedRating)) recommendations.push_back(make_pair(i, predictedRating));
 	}
 
-	if (!recommendations.size()) return recommendations;
+	int recommendationsSize = recommendations.size();
+	if (!recommendationsSize) return recommendations;
 
 	struct compareRecommendations {
 		inline bool operator() (const pair<int, double>& a, const pair<int, double>& b) {
@@ -189,7 +205,8 @@ vector<pair<int, double>> Recommender::getTopCFRecommendations(vector<vector<dou
 		}
 	};
 	sort(recommendations.begin(), recommendations.end(), compareRecommendations());
-	if (limit != -1 && (int)recommendations.size() > limit) {
+
+	if (limit != -1 && recommendationsSize > limit) {
 		recommendations.erase(recommendations.begin() + limit, recommendations.end());
 	}
 
@@ -247,7 +264,8 @@ int Recommender::getNumberOfTimesTermAppears(const string& term, vector<string> 
 
 int Recommender::getNumberOfDocumentsWithTerm(string& term) const {
 	int count = 0;
-	for (unsigned i = 0; i < this->documents.size(); i++) {
+	int totalDocumentsSize = this->documents.size();
+	for (int i = 0; i < totalDocumentsSize; i++) {
 		if (this->getNumberOfTimesTermAppears(term, this->documents[i]) >= 1) {
 			count++;
 		}
@@ -257,20 +275,19 @@ int Recommender::getNumberOfDocumentsWithTerm(string& term) const {
 }
 
 double Recommender::calculateTfIdf(int numberOfTimesTermAppears, int totalNumberOfTerms, string currentTerm) const {
+	double totalDocumentsSize = this->documents.size();
 	double tf = numberOfTimesTermAppears / (double)totalNumberOfTerms;
 	int numberOfDocumentsWithTerm = this->getNumberOfDocumentsWithTerm(currentTerm);
-	double idf = log((double)this->documents.size() / (double)numberOfDocumentsWithTerm);
+	double idf = log(totalDocumentsSize / (double)numberOfDocumentsWithTerm);
 	idf++;
 	double tfidf = tf * idf;
 
 	return tfidf;
 }
 
-vector<pair<int, double>> Recommender::getNeighbourhood(int index, int colIndex, vector<vector<double>> &ratings) {
-	vector<pair<int, double>> similarities;
-	Utils::subtractRawMeanFromVector(ratings[index]);
-	double normA = Utils::normalizeVector(ratings[index]);
-	similarities = this->getSimilarities(ratings, normA, index, colIndex);
+vector<pair<int, double>> Recommender::getNeighbourhood(int rowIndex, int colIndex, vector<vector<double>> &ratings, vector<vector<double>> originalRatings) {
+	double normA = Utils::normalizeVector(ratings[rowIndex]);
+	vector<pair<int, double>> similarities = this->getSimilarities(ratings, normA, rowIndex, colIndex, originalRatings);
 
 	struct comparePairs {
 		inline bool operator() (const pair<int, double>& a, const pair<int, double>& b) {
@@ -283,16 +300,47 @@ vector<pair<int, double>> Recommender::getNeighbourhood(int index, int colIndex,
 	return similarities;
 }
 
-vector<pair<int, double>> Recommender::getSimilarities(vector<vector<double>> &ratings, double normA, int index, int colIndex) {
+vector<pair<int, double>> Recommender::getNeighbourhood(int rowIndex, vector<vector<double>> &ratings, vector<vector<double>> originalRatings) {
+	double normA = Utils::normalizeVector(ratings[rowIndex]);
+	vector<pair<int, double>> similarities = this->getSimilarities(ratings, normA, rowIndex, originalRatings);
+
+	struct comparePairs {
+		inline bool operator() (const pair<int, double>& a, const pair<int, double>& b) {
+			return (a.second > b.second);
+		}
+	};
+
+	sort(similarities.begin(), similarities.end(), comparePairs());
+
+	return similarities;
+}
+
+vector<pair<int, double>> Recommender::getSimilarities(vector<vector<double>> &ratings, double normA, int rowIndex, int colIndex, vector<vector<double>> originalRatings) {
 	vector<pair<int, double>> similarities;
-	for (unsigned i = 0; i < ratings.size(); i++) {
-		if ((int)i == index) continue;
-		if (ratings[i][colIndex] == 0) continue;
-		Utils::subtractRawMeanFromVector(ratings[i]);
-		double dotProduct = Utils::calculateDotProduct(ratings[index], ratings[i]);
-		double normB = Utils::normalizeVector(ratings[i]);
+	int ratingsSize = ratings.size();
+	for (int i = 0; i < ratingsSize; i++) {
+		if ((int)i == rowIndex) continue;
+		if (originalRatings[i][colIndex] != 0) {
+			double dotProduct = Utils::calculateDotProduct(originalRatings[rowIndex], originalRatings[i]);
+			vector<double> subtractedRawMeanVector = Utils::getSubtractRawMeanFromVector(ratings[i]);
+			double normB = Utils::normalizeVector(subtractedRawMeanVector);
+			double cosineSimilarity = Utils::calculateCosineSimilarity(dotProduct, normA, normB);
+			similarities.push_back(make_pair(i, cosineSimilarity));
+		}
+	}
+
+	return similarities;
+}
+
+vector<pair<int, double>> Recommender::getSimilarities(vector<vector<double>> &ratings, double normA, int rowIndex, vector<vector<double>> originalRatings) {
+	vector<pair<int, double>> similarities;
+	int ratingsSize = ratings.size();
+	for (int i = 0; i < ratingsSize; i++) {
+		if ((int)i == rowIndex) continue;
+		double dotProduct = Utils::calculateDotProduct(originalRatings[rowIndex], originalRatings[i]);
+		vector<double> subtractedRawMeanVector = Utils::getSubtractRawMeanFromVector(ratings[i]);
+		double normB = Utils::normalizeVector(subtractedRawMeanVector);
 		double cosineSimilarity = Utils::calculateCosineSimilarity(dotProduct, normA, normB);
-		if (cosineSimilarity < 0) continue;
 		similarities.push_back(make_pair(i, cosineSimilarity));
 	}
 

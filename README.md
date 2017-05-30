@@ -236,7 +236,7 @@ var ratings = [
 var rowIndex = 0;
 var colIndex = 4;
 recommender.getRatingPrediction(ratings, rowIndex, colIndex, (predictedRating) => {
-    // predictedRating is 2.586406866934817
+    // predictedRating is 3.329569404588411
 });
 ```
 <a name="get-g-b"></a>
@@ -286,9 +286,10 @@ recommender.getTopCFRecommendations(ratings, 0, 100, (recommendations) => {
     console.log(recommendations);
     /*
     [
-      { itemId: 1, rating: 5 },
-      { itemId: 5, rating: 5 },
-      { itemId: 2, rating: 4 }
+        { itemId: 1, rating: 4.4907920453550085 },
+        { itemId: 2, rating: 3.5926336362840074 },
+        { itemId: 5, rating: 0.5092079546449908 },
+        { itemId: 6, rating: 0 }
     ]
     */
 });
@@ -302,14 +303,14 @@ recommender.getTopCFRecommendations(ratings, 0, 100, (recommendations) => {
 
 Can be viewed [here](https://github.com/D-Andreev/recommender-addon/blob/master/demo/benchmarks.js). 
 ```
-tfidf*100000: 14147.128ms
-ratingPrediction*100000: 3461.044ms
-getGlobalBaselineRatingPrediction*100000: 3085.550ms
-getTopCFRecommendations*100000: 5109.796ms
-tfidf*100000: 14231.918ms
-ratingPrediction*100000: 3443.705ms
-getGlobalBaselineRatingPrediction*100000: 3096.223ms
-getTopCFRecommendations*100000: 5051.892ms
+tfidf*100000: 14031.042ms
+ratingPrediction*100000: 3207.467ms
+getGlobalBaselineRatingPrediction*100000: 2732.428ms
+getTopCFRecommendations*100000: 4571.486ms
+tfidf*100000: 15560.851ms
+ratingPrediction*100000: 3214.809ms
+getGlobalBaselineRatingPrediction*100000: 2847.250ms
+getTopCFRecommendations*100000: 4590.713ms
 ```
 
 ### Contributing
