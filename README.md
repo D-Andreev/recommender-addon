@@ -236,7 +236,7 @@ var ratings = [
 var rowIndex = 0;
 var colIndex = 4;
 recommender.getRatingPrediction(ratings, rowIndex, colIndex, (predictedRating) => {
-    // predictedRating is 2.586406866934817
+    // predictedRating is 3.329569404588411
 });
 ```
 <a name="get-g-b"></a>
@@ -286,9 +286,10 @@ recommender.getTopCFRecommendations(ratings, 0, 100, (recommendations) => {
     console.log(recommendations);
     /*
     [
-      { itemId: 1, rating: 5 },
-      { itemId: 5, rating: 5 },
-      { itemId: 2, rating: 4 }
+        { itemId: 1, rating: 4.4907920453550085 },
+        { itemId: 2, rating: 3.5926336362840074 },
+        { itemId: 5, rating: 0.5092079546449908 },
+        { itemId: 6, rating: 0 }
     ]
     */
 });

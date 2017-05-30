@@ -35,8 +35,10 @@ private:
 	int getNumberOfTimesTermAppears(const string& term, vector<string> document) const;
 	int getNumberOfDocumentsWithTerm(string& termt) const;
 	double calculateTfIdf(int numberOfTimesTermAppears, int totalNumberOfTerms, string currentTerm) const;
-	vector<pair<int, double>> getNeighbourhood(int index, int colIndex, vector<vector<double>> &ratings);
-	vector<pair<int, double>> getSimilarities(vector<vector<double>> &ratings, double normA, int index, int colIndex);
+	vector<pair<int, double>> getNeighbourhood(int index, int colIndex, vector<vector<double>> &ratings, vector<vector<double>> originalRatings);
+	vector<pair<int, double>> getNeighbourhood(int index, vector<vector<double>> &ratings, vector<vector<double>> originalRatings);
+	vector<pair<int, double>> getSimilarities(vector<vector<double>> &ratings, double normA, int index, int colIndex, vector<vector<double>> originalRatings);
+	vector<pair<int, double>> getSimilarities(vector<vector<double>> &ratings, double normA, int index, vector<vector<double>> originalRatings);
 };
 
 #endif
