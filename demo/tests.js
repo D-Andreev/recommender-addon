@@ -351,14 +351,14 @@ describe('Recommender', () => {
                 context('sync', () => {
                     it('returns the correct result', () => {
                         let ratingPrediction = r.getRatingPrediction(largeRatingsTable, this.row, 31);
-                        expect(ratingPrediction > 0).to.be.true;
+                        expect(ratingPrediction).to.eql(2.9999999999999996);
                     }).timeout(LONG_TIMEOUT);
                 });
 
                 context('async', () => {
                     it('returns correct result', (done) => {
                         r.getRatingPrediction(largeRatingsTable, this.row, 31, (ratingPrediction) => {
-                            expect(ratingPrediction > 0).to.be.true;
+                            expect(ratingPrediction).to.eql(2.9999999999999996);
                             done();
                         });
                     }).timeout(LONG_TIMEOUT);
@@ -603,14 +603,14 @@ describe('Recommender', () => {
                 context('sync', () => {
                     it('returns correct result', () => {
                         let ratingPrediction = r.getGlobalBaselineRatingPrediction(largeRatingsTable, this.row, 31);
-                        expect(ratingPrediction > 0).to.be.true;
+                        expect(ratingPrediction).to.eql(3.0066998569990995);
                     }).timeout(LONG_TIMEOUT);
                 });
 
                 context('async', () => {
                     it('returns correct result', (done) => {
                         r.getGlobalBaselineRatingPrediction(largeRatingsTable, this.row, 31, (ratingPrediction) => {
-                            expect(ratingPrediction > 0).to.be.true;
+                            expect(ratingPrediction).to.eql(3.0066998569990995);
                             done();
                         });
                     }).timeout(LONG_TIMEOUT);
