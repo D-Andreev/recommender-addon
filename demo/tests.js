@@ -758,7 +758,7 @@ describe('Recommender', () => {
                 [3, 0, 0, 0, 0, 0, 3]
             ];
             this.row = 0;
-            this.limit = 100;
+            this.options = {limit: 3, includeRatedItems: true};
 
             this.expectedTopRecommendations = [
               { itemId: 1, rating: 4.4907920453550085 },
@@ -766,22 +766,94 @@ describe('Recommender', () => {
               { itemId: 5, rating: 0.5092079546449908 },
               { itemId: 6, rating: 0 }
             ];
+            this.expectedTopRecommendationsIncludingRatedImtes = [
+                { itemId: 0, rating: 4.4907920453550085 },
+                { itemId: 1, rating: 4.4907920453550085 },
+                { itemId: 2, rating: 3.5926336362840074 },
+                { itemId: 5, rating: 0.5092079546449908 },
+                { itemId: 4, rating: 0.40736636371599255 },
+                { itemId: 3, rating: 0.20368318185799628 },
+                { itemId: 6, rating: 0 }
+            ];
+            this.expectedTopRecommendationsWithOptions = [
+                { itemId: 0, rating: 4.4907920453550085 },
+                { itemId: 1, rating: 4.4907920453550085 },
+                { itemId: 2, rating: 3.5926336362840074 }
+            ];
         });
 
         context('when correct params are sent', () => {
             context('when example matrix is used', () => {
-                context('sync', () => {
-                    it('returns correct result', () => {
-                        let recommendations = r.getTopCFRecommendations(this.ratings, this.row, this.limit);
-                        expect(recommendations).to.eql(this.expectedTopRecommendations);
+                context('when options are sent', () => {
+                    context('when only limit is sent', () => {
+                        context('sync', () => {
+                            it('returns correct result', () => {
+                                let recommendations = r.getTopCFRecommendations(this.ratings, this.row, {limit: 3});
+                                expect(recommendations).to.eql(this.expectedTopRecommendations.splice(0, 3));
+                            });
+                        });
+
+                        context('async', () => {
+                            it('returns correct result', (done) => {
+                                r.getTopCFRecommendations(this.ratings, this.row, { limit: 3 }, (recommendations) => {
+                                    expect(recommendations).to.eql(this.expectedTopRecommendations.splice(0, 3));
+                                    done();
+                                });
+                            });
+                        });
+                    });
+
+                    context('when only includeRatedItems is sent', () => {
+                        context('sync', () => {
+                            it('returns correct result', () => {
+                                let recommendations = r.getTopCFRecommendations(this.ratings, this.row, { includeRatedItems: true });
+                                expect(recommendations).to.eql(this.expectedTopRecommendationsIncludingRatedImtes);
+                            });
+                        });
+
+                        context('async', () => {
+                            it('returns correct result', (done) => {
+                                r.getTopCFRecommendations(this.ratings, this.row, { includeRatedItems: true }, (recommendations) => {
+                                    expect(recommendations).to.eql(this.expectedTopRecommendationsIncludingRatedImtes);
+                                    done();
+                                });
+                            });
+                        });
+                    });
+
+                    context('when both options are sent', () => {
+                        context('sync', () => {
+                            it('returns correct result', () => {
+                                let recommendations = r.getTopCFRecommendations(this.ratings, this.row, this.options);
+                                expect(recommendations).to.eql(this.expectedTopRecommendationsWithOptions);
+                            });
+                        });
+
+                        context('async', () => {
+                            it('returns correct result', (done) => {
+                                r.getTopCFRecommendations(this.ratings, this.row, this.options, (recommendations) => {
+                                    expect(recommendations).to.eql(this.expectedTopRecommendationsWithOptions);
+                                    done();
+                                });
+                            });
+                        });
                     });
                 });
 
-                context('async', () => {
-                    it('returns correct result', (done) => {
-                        r.getTopCFRecommendations(this.ratings, this.row, this.limit, (recommendations) => {
+                context('when options are not sent', () => {
+                    context('sync', () => {
+                        it('returns correct result', () => {
+                            let recommendations = r.getTopCFRecommendations(this.ratings, this.row);
                             expect(recommendations).to.eql(this.expectedTopRecommendations);
-                            done();
+                        });
+                    });
+
+                    context('async', () => {
+                        it('returns correct result', (done) => {
+                            r.getTopCFRecommendations(this.ratings, this.row, (recommendations) => {
+                                expect(recommendations).to.eql(this.expectedTopRecommendations);
+                                done();
+                            });
                         });
                     });
                 });
@@ -800,14 +872,14 @@ describe('Recommender', () => {
 
                 context('sync', () => {
                     it('returns correct result', () => {
-                        let recommendations = r.getTopCFRecommendations(this.sparseMatrix, this.row, this.limit);
+                        let recommendations = r.getTopCFRecommendations(this.sparseMatrix, this.row, this.options);
                         expect(recommendations).to.eql([]);
                     });
                 });
 
                 context('async', () => {
                     it('returns correct result', (done) => {
-                        r.getTopCFRecommendations(this.sparseMatrix, this.row, this.limit, (recommendations) => {
+                        r.getTopCFRecommendations(this.sparseMatrix, this.row, this.options, (recommendations) => {
                             expect(recommendations).to.eql([]);
                             done();
                         });
@@ -818,14 +890,14 @@ describe('Recommender', () => {
             describe('medium matrix', () => {
                 context('sync', () => {
                     it('returns correct result', () => {
-                        let recommendations = r.getTopCFRecommendations(generateMatrix(1000, 1000), this.row, this.limit);
+                        let recommendations = r.getTopCFRecommendations(generateMatrix(1000, 1000), this.row, this.options);
                         expect(recommendations.length > 0).to.be.true;
                     }).timeout(LONG_TIMEOUT);
                 });
 
                 context('async', () => {
                     it('returns correct result', (done) => {
-                        r.getTopCFRecommendations(generateMatrix(1000, 1000), this.row, this.limit, (recommendations) => {
+                        r.getTopCFRecommendations(generateMatrix(1000, 1000), this.row, this.options, (recommendations) => {
                             expect(recommendations.length > 0).to.be.true;
                             done();
                         });
@@ -836,14 +908,14 @@ describe('Recommender', () => {
             describe('large matrix', () => {
                 context('sync', () => {
                     it('returns correct result', () => {
-                        let recommendations = r.getTopCFRecommendations(generateMatrix(300, 10000), this.row, this.limit);
+                        let recommendations = r.getTopCFRecommendations(generateMatrix(300, 10000), this.row, this.options);
                         expect(recommendations.length > 0).to.be.true;
                     }).timeout(LONG_TIMEOUT);
                 });
                 
                 context('async', () => {
                     it('returns correct result', (done) => {
-                        r.getTopCFRecommendations(generateMatrix(300, 10000), this.row, this.limit, (recommendations) => {
+                        r.getTopCFRecommendations(generateMatrix(300, 10000), this.row, this.options, (recommendations) => {
                             expect(recommendations.length > 0).to.be.true;
                             done();
                         });
@@ -854,36 +926,18 @@ describe('Recommender', () => {
             describe('very large matrix', () => {
                 context('sync', () => {
                     it('returns correct result', () => {
-                        let recommendations = r.getTopCFRecommendations(largeRatingsTable, this.row, this.limit);
+                        let recommendations = r.getTopCFRecommendations(largeRatingsTable, this.row, this.options);
                         expect(recommendations.length > 0).to.be.true;
                     }).timeout(LONG_TIMEOUT);
                 });
 
                 context('async', () => {
                     it('returns correct result', (done) => {
-                        r.getTopCFRecommendations(largeRatingsTable, this.row, this.limit, (recommendations) => {
+                        r.getTopCFRecommendations(largeRatingsTable, this.row, this.options, (recommendations) => {
                             expect(recommendations.length > 0).to.be.true;
                             done();
                         });
                     }).timeout(LONG_TIMEOUT);
-                });
-            });
-
-            describe('with custom limit', () => {
-                context('sync', () => {
-                    it('returns correct result within limit', () => {
-                        let recommendations = r.getTopCFRecommendations(this.ratings, this.row, 3);
-                        expect(recommendations.length === 3).to.be.true;
-                    });
-                });
-
-                context('async', () => {
-                    it('returns correct result within limit', (done) => {
-                        r.getTopCFRecommendations(this.ratings, this.row, 3, (recommendations) => {
-                            expect(recommendations.length === 3).to.be.true;
-                            done();
-                        });
-                    });
                 });
             });
         });
@@ -892,14 +946,14 @@ describe('Recommender', () => {
             describe('when ratings are invalid', () => {
                 context('sync', () => {
                     it('return 0', () => {
-                        let recommendations = r.getTopCFRecommendations(false, this.row, this.limit);
+                        let recommendations = r.getTopCFRecommendations(false, this.row, this.options);
                         expect(recommendations).to.eql([]);
                     });
                 });
 
                 context('async', () => {
                     it('return 0', (done) => {
-                        r.getTopCFRecommendations(false, this.row, this.limit, (recommendations) => {
+                        r.getTopCFRecommendations(false, this.row, this.options, (recommendations) => {
                             expect(recommendations).to.eql([]);
                             done();
                         });
@@ -908,7 +962,7 @@ describe('Recommender', () => {
                 
 
                 it('return 0', (done) => {
-                    r.getTopCFRecommendations(false, this.row, this.limit, (recommendations) => {
+                    r.getTopCFRecommendations(false, this.row, this.options, (recommendations) => {
                         expect(recommendations).to.eql([]);
                         done();
                     });
@@ -918,14 +972,14 @@ describe('Recommender', () => {
             describe('when row is invalid', () => {
                 context('sync', () => {
                     it('return 0', () => {
-                        let recommendations = r.getTopCFRecommendations(this.ratings, -1, this.limit);
+                        let recommendations = r.getTopCFRecommendations(this.ratings, -1, this.options);
                         expect(recommendations).to.eql([]);
                     });
                 });
 
                 context('async', () => {
                     it('return 0', (done) => {
-                        r.getTopCFRecommendations(this.ratings, -1, this.limit, (recommendations) => {
+                        r.getTopCFRecommendations(this.ratings, -1, this.options, (recommendations) => {
                             expect(recommendations).to.eql([]);
                             done();
                         });
@@ -935,14 +989,14 @@ describe('Recommender', () => {
                 context('row is outside matrix', () => {
                     context('sync', () => {
                         it('return 0', () => {
-                            let recommendations = r.getTopCFRecommendations(this.ratings, 123123, this.limit);
+                            let recommendations = r.getTopCFRecommendations(this.ratings, 123123, this.options);
                             expect(recommendations).to.eql([]);
                         });
                     });
 
                     context('async', () => {
                         it('return 0', (done) => {
-                            r.getTopCFRecommendations(this.ratings, 123123, this.limit, (recommendations) => {
+                            r.getTopCFRecommendations(this.ratings, 123123, this.options, (recommendations) => {
                                 expect(recommendations).to.eql([]);
                                 done();
                             });
@@ -953,14 +1007,14 @@ describe('Recommender', () => {
                 context('row is null', () => {
                     context('sync', () => {
                         it('return 0', () => {
-                            let recommendations = r.getTopCFRecommendations(this.ratings, null, this.limit);
+                            let recommendations = r.getTopCFRecommendations(this.ratings, null, this.options);
                             expect(recommendations).to.eql([]);
                         });
                     });
 
                     context('async', () => {
                         it('return 0', (done) => {
-                            r.getTopCFRecommendations(this.ratings, null, this.limit, (recommendations) => {
+                            r.getTopCFRecommendations(this.ratings, null, this.options, (recommendations) => {
                                 expect(recommendations).to.eql([]);
                                 done();
                             });

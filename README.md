@@ -150,7 +150,7 @@ var predictedRating = recommender.getGlobalBaselineRatingPrediction(ratings, use
 * **[recommender.tfidf(`searchQueryFilePath`, `documentsFilePath`, `useStopWords`, [`callback`])](#tfidf-files)**
 * **[recommender.getRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])](#get-r-p)**
 * **[recommender.getGlobalBaselineRatingPrediction(`ratings`, `rowIndex`, `colIndex`, [`callback`])](#get-g-b)**
-* **[recommender.getTopCFRecommendations(`ratings`, `rowIndex`, `limit`, [`callback`])](#get-top-cf)**
+* **[recommender.getTopCFRecommendations(`ratings`, `rowIndex`, [`options`], [`callback`])](#get-top-cf)**
 <a name="tfidf-arrays"></a>
 ##### recommender.tfidf(`query`, `documents`, `useStopWords`, [`callback`])
 ###### Arguments
@@ -264,11 +264,13 @@ recommender.getGlobalBaselineRatingPrediction(ratings, userIndex, movieIndex, (p
 });
 ```
 <a name="get-top-cf"></a>
-##### recommender.getTopCFRecommendations(`ratings`, `rowIndex`, `limit`, [`callback`])
+##### recommender.getTopCFRecommendations(`ratings`, `rowIndex`, [`options`], [`callback`])
 ###### Arguments
 * `ratings` - A two dimensional array with numbers representing the ratings. *(Required)*
 * `rowIndex` - An integer with the index of the target row for prediction. *(Required)*
-* `limit` - An integer with the max number of recommendations to be returned. *(Required)*
+* `options` - An object with options. *(Optional)*
+	- `limit` - A number with a limit for the results. *(Optional)* *(Default: 100)*
+	- `includeRatedItems` - A boolean to indicate wether already rated items by the user should be included in the results. *(Optional)* *(Default: false)*
 * `callback` - A function with callback. *(optional)*
 ###### Returns
 An array of objects. Each object contains the item id and the predicted rating. The array is sorted by rating.
@@ -282,7 +284,7 @@ var ratings = [
     [ 3, 0, 0, 0, 0, 0, 3 ]
 ];
 // We are getting the top recommendations for the first user.
-recommender.getTopCFRecommendations(ratings, 0, 100, (recommendations) => {
+recommender.getTopCFRecommendations(ratings, 0, (recommendations) => {
     console.log(recommendations);
     /*
     [
@@ -290,6 +292,17 @@ recommender.getTopCFRecommendations(ratings, 0, 100, (recommendations) => {
         { itemId: 2, rating: 3.5926336362840074 },
         { itemId: 5, rating: 0.5092079546449908 },
         { itemId: 6, rating: 0 }
+    ]
+    */
+
+// Or we can pass options parameter.
+recommender.getTopCFRecommendations(ratings, 0, {limit: 3}, (recommendations) => {
+    console.log(recommendations);
+    /*
+    [
+        { itemId: 1, rating: 4.4907920453550085 },
+        { itemId: 2, rating: 3.5926336362840074 },
+        { itemId: 5, rating: 0.5092079546449908 }
     ]
     */
 });
@@ -303,14 +316,14 @@ recommender.getTopCFRecommendations(ratings, 0, 100, (recommendations) => {
 
 Can be viewed [here](https://github.com/D-Andreev/recommender-addon/blob/master/demo/benchmarks.js). 
 ```
-tfidf*100000: 14031.042ms
-ratingPrediction*100000: 3207.467ms
-getGlobalBaselineRatingPrediction*100000: 2732.428ms
-getTopCFRecommendations*100000: 4571.486ms
-tfidf*100000: 15560.851ms
-ratingPrediction*100000: 3214.809ms
-getGlobalBaselineRatingPrediction*100000: 2847.250ms
-getTopCFRecommendations*100000: 4590.713ms
+tfidf*100000: 14471.830ms
+ratingPrediction*100000: 3782.905ms
+getGlobalBaselineRatingPrediction*100000: 3235.675ms
+getTopCFRecommendations*100000: 5171.741ms
+tfidf*100000: 14506.219ms
+ratingPrediction*100000: 3761.865ms
+getGlobalBaselineRatingPrediction*100000: 3279.035ms
+getTopCFRecommendations*100000: 5130.438ms
 ```
 
 ### Contributing

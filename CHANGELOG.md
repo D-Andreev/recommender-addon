@@ -53,3 +53,6 @@
 
 ## 2.0.5
 - Improve get top cf performance.
+
+## 3.0.0
+- Breaking change for `getTopCFRecommendations`. `limit` parameter is removed and the method now accepts options object as parameter.
