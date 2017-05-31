@@ -115,7 +115,7 @@ var expectedTopRecommendations = [
   { itemId: 5, rating: 0.5092079546449908 },
   { itemId: 6, rating: 0 }
 ];
-var recommendations = recommender.getTopCFRecommendations(userRatings, 0, 100);
+var recommendations = recommender.getTopCFRecommendations(userRatings, 0);
 console.log(recommendations);
 recommendations.forEach((item, index) => {
     assert.equal(item.itemId, expectedTopRecommendations[index].itemId);
@@ -166,7 +166,7 @@ expectedTopRecommendations = [
   { itemId: 5, rating: 5 },
   { itemId: 2, rating: 4 }
 ];
-recommender.getTopCFRecommendations(userRatings, 0, 100, (res) => {
+recommender.getTopCFRecommendations(userRatings, 0, (res) => {
     console.log('Top CF Recommendations async result', res);
     res.forEach((item, index) => {
         assert.equal(item.itemId, expectedTopRecommendations[index].itemId);

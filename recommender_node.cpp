@@ -9,6 +9,8 @@
 using namespace Nan;
 using namespace v8;
 
+const int DEFAULT_TOP_CF_RECS_COUNT = 100;
+
 string getStringParameter(int index, NAN_METHOD_ARGS_TYPE info) {
 	v8::String::Utf8Value stringParam(info[index]->ToString());
 	string parsedString(*stringParam);
@@ -72,6 +74,31 @@ vector<vector<double>> getMatrixParameter(int index, NAN_METHOD_ARGS_TYPE info) 
 	}
 
 	return matrix;
+}
+
+map<string, int> getOptionsObjectParameter(int index, NAN_METHOD_ARGS_TYPE info) {
+	map<string, int> opts;
+	Local<Object> obj = Local<Object>::Cast(info[index]);
+	Local<Array> propertyNames = obj->GetOwnPropertyNames();
+	for (int i = 0; i < propertyNames->Length(); ++i) {
+		Local<Value> keyObj = propertyNames->Get(i);
+		v8::String::Utf8Value keyParam(keyObj->ToString());
+		string key(*keyParam);
+		Local<Value> value = obj->Get(keyObj);
+
+		if (key == "limit") {
+			opts["limit"] = value->NumberValue();
+		}
+		else if (key == "includeRatedItems") {
+			opts["includeRatedItems"] = value->BooleanValue();
+		}
+	}
+
+	if (opts.find("limit") == opts.end()) opts["limit"] = -1;
+	if (opts.find("includeRatedItems") == opts.end()) opts["includeRatedItems"] = -1;
+	else opts["includeRatedItems"] = 1;
+
+	return opts;
 }
 
 bool isOutsideMatrix(vector<vector<double>> matrix, int rowIndex, int colIndex) {
@@ -233,8 +260,6 @@ NAN_METHOD(GetTopCFRecommendations) {
 
 	vector<vector<double>> ratings = getMatrixParameter(0, info);
 	int rowIndex = info[1]->IntegerValue();
-	int limit = -1;
-	if (info[2]->IntegerValue()) limit = info[2]->IntegerValue();
 
 	if (rowIndex < 0 || rowIndex > (int)ratings.size()) {
 		if (info[2]->IsFunction()) return callCallbackWithEmptyArray(2, info); 
@@ -245,14 +270,21 @@ NAN_METHOD(GetTopCFRecommendations) {
 	if (info[2]->IsFunction()) {
 		// Async
 		Callback *callback = new Callback(info[2].As<Function>());
-		AsyncQueueWorker(new TopCFRecommendationsWorker(callback, r, ratings, rowIndex, limit));
+		AsyncQueueWorker(new TopCFRecommendationsWorker(callback, r, ratings, rowIndex, -1, -1));
 	} else if (info[3]->IsFunction()) {
 		// Async
+		map<string, int> opts = getOptionsObjectParameter(2, info);
 		Callback *callback = new Callback(info[3].As<Function>());
-		AsyncQueueWorker(new TopCFRecommendationsWorker(callback, r, ratings, rowIndex, limit));
+		AsyncQueueWorker(new TopCFRecommendationsWorker(callback, r, ratings, rowIndex, opts["limit"], opts["includeRatedItems"]));
 	} else {
 		// Sync
-		vector<pair<int, double>> recommendations = r.getTopCFRecommendations(ratings, rowIndex, limit);
+		vector<pair<int, double>> recommendations;
+		if (info[2]->IsObject()) {
+			map<string, int> opts = getOptionsObjectParameter(2, info);
+			recommendations = r.getTopCFRecommendations(ratings, rowIndex, opts["limit"], opts["includeRatedItems"]);
+		} else {
+			recommendations = r.getTopCFRecommendations(ratings, rowIndex, -1, -1);
+		}
 		Local<Array> result = convertVectorOfPairsToV8Array(recommendations);
 		
 		info.GetReturnValue().Set(result);
@@ -270,4 +302,4 @@ NAN_MODULE_INIT(Init) {
 		GetFunction(New<FunctionTemplate>(GetTopCFRecommendations)).ToLocalChecked());
 }
 
-NODE_MODULE(hello_nan_addon, Init)
+NODE_MODULE(recommender_addon, Init)

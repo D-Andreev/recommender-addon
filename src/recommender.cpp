@@ -166,7 +166,7 @@ double Recommender::getGlobalBaselineRatingPrediction(vector<vector<double>> &ra
 	return result;
 }
 
-vector<pair<int, double>> Recommender::getTopCFRecommendations(vector<vector<double>> &ratings, int rowIndex, int limit) {
+vector<pair<int, double>> Recommender::getTopCFRecommendations(vector<vector<double>> &ratings, int rowIndex, int limit, int includeRatedItems) {
 	vector<pair<int, double>> recommendations;
 	vector<vector<double>> originalRatings;
 	int ratingsSize = ratings.size();
@@ -183,7 +183,7 @@ vector<pair<int, double>> Recommender::getTopCFRecommendations(vector<vector<dou
 
 	int userRowSize = ratings[rowIndex].size();
 	for (int i = 0; i < userRowSize; i++) {
-		if (ratings[rowIndex][i] != 0) continue;
+		if (includeRatedItems == -1 && ratings[rowIndex][i] != 0) continue;
 
 		double similaritiesSum = 0;
 		double ratingsSum = 0;

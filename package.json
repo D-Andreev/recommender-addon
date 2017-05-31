@@ -7,7 +7,8 @@
     "pretest": "cd ./demo && npm i",
     "test": "cd ./demo && mocha ./tests.js",
     "benchmarks": "cd ./demo && npm i && node benchmarks.js",
-    "clear:demo": "rm -rf ./demo/node_modules"
+    "clear:demo": "rm -rf ./demo/node_modules",
+    "compile:demo": "cd ./demo && npm i"
   },
   "gypfile": true,
   "author": "Dimitar Andreev <d.andreev90@gmail.com>",

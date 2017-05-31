@@ -24,7 +24,7 @@ public:
 	vector<string> getSortedDocuments(vector<double> similarities);
 	double getRatingPrediction(vector<vector<double>> &ratings, int rowIndex, int colIndex);
 	double getGlobalBaselineRatingPrediction(vector<vector<double>> &ratings, int rowIndex, int colIndex);
-	vector<pair<int, double>> getTopCFRecommendations(vector<vector<double>> &ratings, int rowIndex, int limit);
+	vector<pair<int, double>> getTopCFRecommendations(vector<vector<double>> &ratings, int rowIndex, int limit, int includeRatedItems);
 private:
 	bool useStopWords;
 	vector<vector<string>> vocabulary;

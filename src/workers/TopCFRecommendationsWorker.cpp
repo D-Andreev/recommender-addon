@@ -7,15 +7,16 @@ using namespace v8;
 
 class TopCFRecommendationsWorker : public AsyncWorker {
 public:
-	TopCFRecommendationsWorker(Callback * callback, Recommender recommender, vector<vector<double>> ratings, int rowIndex, int limit) :
+	TopCFRecommendationsWorker(Callback * callback, Recommender recommender, vector<vector<double>> ratings, int rowIndex, int limit, int includeRatedItems) :
 		AsyncWorker(callback),
 		recommender(recommender),
 		ratings(ratings),
 		rowIndex(rowIndex),
-		limit(limit) {}
+		limit(limit),
+		includeRatedItems(includeRatedItems) {}
 
 	void Execute() {
-		this->result = this->recommender.getTopCFRecommendations(this->ratings, this->rowIndex, this->limit);
+		this->result = this->recommender.getTopCFRecommendations(this->ratings, this->rowIndex, this->limit, this->includeRatedItems);
 	}
 
 	void HandleOKCallback() {
@@ -38,5 +39,6 @@ private:
 	vector<vector<double>> ratings;
 	int rowIndex;
 	int limit;
+	int includeRatedItems;
 	vector<pair<int, double>> result;
 };
