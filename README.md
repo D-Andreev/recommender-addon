@@ -316,14 +316,14 @@ recommender.getTopCFRecommendations(ratings, 0, {limit: 3}, (recommendations) =>
 
 Can be viewed [here](https://github.com/D-Andreev/recommender-addon/blob/master/demo/benchmarks.js). 
 ```
-tfidf*100000: 14031.042ms
-ratingPrediction*100000: 3207.467ms
-getGlobalBaselineRatingPrediction*100000: 2732.428ms
-getTopCFRecommendations*100000: 4571.486ms
-tfidf*100000: 15560.851ms
-ratingPrediction*100000: 3214.809ms
-getGlobalBaselineRatingPrediction*100000: 2847.250ms
-getTopCFRecommendations*100000: 4590.713ms
+tfidf*100000: 14471.830ms
+ratingPrediction*100000: 3782.905ms
+getGlobalBaselineRatingPrediction*100000: 3235.675ms
+getTopCFRecommendations*100000: 5171.741ms
+tfidf*100000: 14506.219ms
+ratingPrediction*100000: 3761.865ms
+getGlobalBaselineRatingPrediction*100000: 3279.035ms
+getTopCFRecommendations*100000: 5130.438ms
 ```
 
 ### Contributing
