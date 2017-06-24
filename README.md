@@ -270,7 +270,7 @@ recommender.getGlobalBaselineRatingPrediction(ratings, userIndex, movieIndex, (p
 * `rowIndex` - An integer with the index of the target row for prediction. *(Required)*
 * `options` - An object with options. *(Optional)*
 	- `limit` - A number with a limit for the results. *(Optional)* *(Default: 100)*
-	- `includeRatedItems` - A boolean to indicate wether already rated items by the user should be included in the results. *(Optional)* *(Default: false)*
+	- `includeRatedItems` - A boolean to indicate wether already rated items should be included in the results. *(Optional)* *(Default: false)*
 * `callback` - A function with callback. *(optional)*
 ###### Returns
 An array of objects. Each object contains the item id and the predicted rating. The array is sorted by rating.
