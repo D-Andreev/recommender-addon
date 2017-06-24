@@ -307,6 +307,7 @@ recommender.getTopCFRecommendations(ratings, 0, {limit: 3}, (recommendations) =>
     */
 });
 ```
+<a name="Run-examples"></a>
 ### Run examples and benchmarks
 - Clone the repo.
 - `npm i` in the main folder.
@@ -326,12 +327,15 @@ getGlobalBaselineRatingPrediction*100000: 3279.035ms
 getTopCFRecommendations*100000: 5130.438ms
 ```
 
+<a name="Contributing"></a>
 ### Contributing
 Pull requests are welcome.
 
+<a name="Changelog"></a>
 ### Changelog
 For complete changelog [click here](https://github.com/D-Andreev/recommender-addon/blob/master/CHANGELOG.md).
 
+<a name="License"></a>
 ### License
 MIT License
 
